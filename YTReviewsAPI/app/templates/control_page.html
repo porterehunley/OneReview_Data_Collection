@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<HEAD>
+	<title>Data Control Center</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="{{ url_for('static', filename='control.js') }}"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+</HEAD>
+<body>
+	<h1> Welcome to the Youtube Reviews data control center </h1>
+	<p id="Current_Media">Current Movie: N/A</p>
+	<ol id="Media_List" class="list-group">
+		<!-- <li class="list-group-item">Hello</li> -->
+	</ol>
+	<script>
+		getTitlesByYear(2018);
+	</script>
+</body>
