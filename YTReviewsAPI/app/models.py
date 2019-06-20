@@ -71,3 +71,56 @@ class Admin(db.Model):
 			return None
 		return admin
 
+#The server controller calls the internal APIs in sequential
+#order and monitors their responses 
+
+#TODO check quotas
+
+class Server_Controller(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	CURRENT_API = db.Column(db.Integer)
+	CURRENT_FILE_INDEX = db.Column(db.Integer)
+	l_movie_titles = []
+
+
+	def __init__(self):
+		self.set_media_titles()
+
+	def run(self):
+		for title in l_movie_titles:
+			l_videoIDs = get_videos(title)
+			for video_id in l_videoIDs:
+				get_comment_threads(video_id)
+				get_video_captions(video_id)
+
+	def set_media_titles(self):
+		self.CURRENT_API = 0
+		movieTitlesFile = open("movieTitles.txt", "r")
+		for line in movieTitlesFile:
+			self.l_movie_titles.append(line[:len(line) - 1])
+
+	def get_videos(self, title):
+		self.CURRENT_API = 1
+		videoIDs_JSON = requests.get('http://127.0.0.1:5000/youtube_list/'+ title)
+
+		if (videoIDs_JSON.status_code == requests.codes.ok): 
+			l_videoIDs = videoIDs_JSON['video_IDs']
+			return l_videoIDs
+
+		return None
+
+	def get_comment_threads(self, l_videoIDs):
+		self.CURRENT_API = 2
+		for video_id in l_videoIDs:
+			response = requests.get('http://127.0.0.1:5000/comment_threads/'+video_id)
+			if (response.status_code != requests.codes.ok):
+				pass
+
+	def get_video_captions(self, l_videoIDs):
+		self.CURRENT_API = 3
+		for video_id in l_videoIDs:
+			response = requests.get('http://127.0.0.1:5000/video_caption/'+video_id)
+			if (response.status_code != requests.codes.ok):
+				pass
+
+
