@@ -1,4 +1,5 @@
 from app.api import bp
+from app import db
 from app.api.errors import bad_request
 from app.models import Video, Description, Comment, Caption
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
@@ -6,6 +7,7 @@ from flask import jsonify
 from videoCaptions import get_video_captions
 from app.api.auth import token_auth
 import pickle
+
 
 @bp.route('/get_movie_titles_file')
 @token_auth.login_required
@@ -93,6 +95,7 @@ def get_list_of_videos(title):
 		videoTitle = item["snippet"]["title"]
 		videoDescription = item["snippet"]["description"]
 		channelTitle = item["snippet"]["channelTitle"]
+		mediaTitle = title
 
 		stats_response = get_video_stats(youtube, videoId)
 
@@ -105,14 +108,14 @@ def get_list_of_videos(title):
 		l_video_id.append(videoId)
 
 		video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
-			dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count)
+			dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
 
-		# db.session.add(video)
+		db.session.add(video)
 
 		#Add video description
 		description = Description(body=videoDescription, video_id=videoId)
-		# db.session.add(description)
-		# db.session.commit()
+		db.session.add(description)
+		db.session.commit()
 
 	return_JSON = {"video_IDs" : l_video_id}
 
@@ -121,37 +124,44 @@ def get_list_of_videos(title):
 
 @bp.route('/comment_threads/<video_id>', methods=['GET'])
 @token_auth.login_required
-def get_comment_threads(video_id):
+def comment_threads(video_id):
 	with open('service1.pkl', 'rb') as input:
 		youtube = pickle.load(input)
 
 	MAX_COMMENT_THREADS = 100
 
+	print('getting comment threads')
 	commentThreads = get_comment_threads(youtube, video_id, MAX_COMMENT_THREADS)
 
+	print('parsing JSON')
 	for item in commentThreads: 
 		parentId = item["id"]
 		topLevelComment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
 
-		comment = Comment(body=topLevelComment, video_id=videoId)
+		comment = Comment(body=topLevelComment, video_id=video_id)
 
 		db.session.add(comment)
 
 	db.session.commit()
+	print('returning')
 
-	return Response("{'status':'success!'}", status=200, mimetype='application/json')
+	return_JSON = {"status" : 'success'}
+
+	return(jsonify(return_JSON))
 
 
-@bp.route('/video_cpation/<video_id>', methods=['GET'])
+@bp.route('/video_caption/<video_id>', methods=['GET'])
 @token_auth.login_required
-def get_video_captions(video_id):
-	video_caption_text = get_video_captions(videoId)
-	video_caption = Caption(body=video_caption_text, video_id=videoId)
+def get_closed_captions(video_id):
+	video_caption_text = get_video_captions(video_id)
+	video_caption = Caption(body=video_caption_text, video_id=video_id)
 	db.session.add(video_caption)
 
 	db.session.commit()
 
-	return Response("{'status':'success!'}", status=200, mimetype='application/json')
+	return_JSON = {"status" : 'success'}
+
+	return(jsonify(return_JSON))
 
 
 

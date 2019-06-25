@@ -6,7 +6,7 @@ function getTitlesByYear(year) {
 	  .then(function(myJson) {
 	    myJson.titles.forEach(function(title) {
 	    	addToList(title.toString());
-	    });
+	  	});
 	    return "Media_List";
 	  })
 	  .then(function(listId) {
@@ -17,21 +17,6 @@ function getTitlesByYear(year) {
 	  	getFirstItemFromList(listId);
 	  });
 }
-
-function main_pipeline() {
-	fetch('http://127.0.0.1:5000/titles/' + year.toString(10))
-	  .then(function(response) {
-	    return response.json();
-	  })
-	  .then(function(myJson) {
-	    myJson.titles.forEach(function(title) {
-	    	addToList(title.toString());
-	    });
-	    return "Media_List";
-	  })
-	  .then();
-}
-
 
 function addToList(title) {
 	var listItem = document.createElement("LI");

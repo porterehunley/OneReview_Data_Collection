@@ -1,4 +1,6 @@
 from app import db
+from flask import jsonify
+import requests
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import base64
@@ -7,6 +9,7 @@ import os
 class Video(db.Model):
 	id = db.Column(db.String(15), primary_key=True)
 	title = db.Column(db.String(100), index=True)
+	mediaTitle = db.Column(db.String(100))
 	date = db.Column(db.DateTime)
 	views = db.Column(db.Integer)
 	likeCount = db.Column(db.Integer)
@@ -14,10 +17,31 @@ class Video(db.Model):
 	favoriteCount = db.Column(db.Integer)
 	commentCount = db.Column(db.Integer)
 	channel_id = db.Column(db.String(30))
-	description_id = db.Column(db.Integer, db.ForeignKey("description.id"))
-	description = db.relationship("Description", foreign_keys=[description_id])
+	description = db.relationship("Description", lazy='dynamic')
 	comments = db.relationship("Comment", lazy='dynamic')
 	caption = db.relationship("Caption", lazy='dynamic')
+
+	def to_dict(self):
+		return_dict = {'title': self.title}
+		return_dict['mediaTitle'] = self.mediaTitle
+		return_dict['views'] = self.views
+		return_dict['likeCount'] = self.likeCount
+		return_dict['dislikeCount'] = self.dislikeCount
+		return_dict['favoriteCount'] = self.favoriteCount
+		return_dict['commentCount'] = self.commentCount
+
+		l_comment_dict = []
+		for comment in self.comments.all():
+			l_comment_dict.append(comment.body)
+		return_dict['comments'] = l_comment_dict
+
+		for description in self.description.all():
+			return_dict['description'] = description.body
+		for caption in self.caption.all():
+			return_dict['caption'] = caption.body
+
+		return(return_dict)
+
 
 	def __repr__(self):
 		return '<Video id={}, title={}>'.format(self.id, self.title)
@@ -27,6 +51,9 @@ class Description(db.Model):
 	body = db.Column(db.Text)
 	video_id = db.Column(db.String(15), db.ForeignKey("video.id"))
 
+	def to_dict(self):
+		return_dict = {'body' : self.body}
+
 	def __repr__(self):
 		return'<body= {}>'.format(self.body)
 
@@ -35,6 +62,9 @@ class Comment(db.Model):
 	body = db.Column(db.Text)
 	video_id = db.Column(db.String(15), db.ForeignKey("video.id"))
 
+	def to_dict(self):
+		return_dict = {'body' : self.body}
+
 	def __repr__(self):
 		return '<body= {}>'.format(self.body)
 
@@ -42,6 +72,9 @@ class Caption(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	body = db.Column(db.Text)
 	video_id = db.Column(db.String(15), db.ForeignKey("video.id"))
+
+	def to_dict(self):
+		return_dict = {'body' : self.body}
 
 	def __repr__(self):
 		return '<body= {}>'.format(self.body)
@@ -70,6 +103,8 @@ class Admin(db.Model):
 		if admin is None:
 			return None
 		return admin
+	def __repr__(self):
+		return '<username= {}, token = {}>'.format(self.username, self.token)
 
 #The server controller calls the internal APIs in sequential
 #order and monitors their responses 
@@ -80,18 +115,42 @@ class Server_Controller(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	CURRENT_API = db.Column(db.Integer)
 	CURRENT_FILE_INDEX = db.Column(db.Integer)
+	CURRENT_MOVIE = db.Column(db.Integer)
+	CURRENT_VIDEO_ID = db.Column(db.Integer)
+
 	l_movie_titles = []
+	access_token = ''
 
-
-	def __init__(self):
+	def __init__(self, access_token):
 		self.set_media_titles()
+		self.access_token = access_token
+
 
 	def run(self):
-		for title in l_movie_titles:
-			l_videoIDs = get_videos(title)
-			for video_id in l_videoIDs:
-				get_comment_threads(video_id)
-				get_video_captions(video_id)
+		movie_counter = 0
+		video_counter = 0
+		MAX_VIDEOS = 1
+
+		for title in self.l_movie_titles[self.CURRENT_MOVIE:]:
+			if (movie_counter == MAX_VIDEOS):
+				return
+
+			l_videoIDs = self.get_videos(title)
+
+			for video_id in l_videoIDs[self.CURRENT_VIDEO_ID:]:
+				
+				if (self.CURRENT_API == 1):
+					self.get_comment_threads(video_id)
+
+				if (self.CURRENT_API == 2):
+					self.get_video_captions(video_id)
+
+				self.CURRENT_VIDEO_ID += 1
+
+			self.CURRENT_VIDEO_ID = 0
+
+			movie_counter += 1
+			self.CURRENT_MOVIE += 1
 
 	def set_media_titles(self):
 		self.CURRENT_API = 0
@@ -101,26 +160,36 @@ class Server_Controller(db.Model):
 
 	def get_videos(self, title):
 		self.CURRENT_API = 1
-		videoIDs_JSON = requests.get('http://127.0.0.1:5000/youtube_list/'+ title)
+		videoIDs_JSON = requests.get('http://127.0.0.1:5000/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
+		videoIDs_JSON = videoIDs_JSON.json()
 
-		if (videoIDs_JSON.status_code == requests.codes.ok): 
-			l_videoIDs = videoIDs_JSON['video_IDs']
-			return l_videoIDs
+		l_videoIDs = videoIDs_JSON['video_IDs']
+		
+		return l_videoIDs
 
-		return None
 
-	def get_comment_threads(self, l_videoIDs):
+	def get_comment_threads(self, video_id):
 		self.CURRENT_API = 2
-		for video_id in l_videoIDs:
-			response = requests.get('http://127.0.0.1:5000/comment_threads/'+video_id)
-			if (response.status_code != requests.codes.ok):
-				pass
+		response = requests.get('http://127.0.0.1:5000/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
+		if (response.status_code != requests.codes.ok):
+			pass
 
-	def get_video_captions(self, l_videoIDs):
-		self.CURRENT_API = 3
-		for video_id in l_videoIDs:
-			response = requests.get('http://127.0.0.1:5000/video_caption/'+video_id)
-			if (response.status_code != requests.codes.ok):
-				pass
+	def get_video_captions(self, video_id):
+		self.CURRENT_API = 1
+		response = requests.get('http://127.0.0.1:5000/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
+		if (response.status_code != requests.codes.ok):
+			pass
+
+	def save_state(self):
+		db.session.add(self)
+		db.session.commit()
+
+	def to_dict(self):
+		return_dict = {'current_movie':self.CURRENT_MOVIE}
+		return_dict['current_video'] = self.CURRENT_VIDEO_ID
+		return_dict['current_api'] = self.CURRENT_API
+
+		return(return_dict)
+
 
 
