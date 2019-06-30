@@ -12,6 +12,7 @@ def search_videos_list(youtube, query_term, max_results):
     return response["items"]
 
 def get_comment_threads(youtube, video_id, max_results):
+    print('requesting YT')
     request = youtube.commentThreads().list(
     part="snippet",
     maxResults=100,

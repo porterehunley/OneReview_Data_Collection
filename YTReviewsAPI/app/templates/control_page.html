@@ -5,15 +5,70 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script src="{{ url_for('static', filename='control.js') }}"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>	
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+	<div class="jumbotron">
+	  <h1 class="text-center">Data Control Center</h1> 
+	  <p class="text-center">A webpage to monitor, start, and stop the data collection process</p> 
+	</div>
 </HEAD>
 <body>
-	<h1> Welcome to the Youtube Reviews data control center </h1>
-	<p id="Current_Media">Current Movie: N/A</p>
-	<ol id="Media_List" class="list-group">
-		<!-- <li class="list-group-item">Hello</li> -->
-	</ol>
+	<div class="row">
+		<div class="col-sm-6">
+			<h2 class="text-center" id="current_year">Current Year: 2018</h2>
+			<h4 id="Current_Media" class="text-center">Current Movie: N/A</h4>
+			<ol id="Media_List" class="list-group">
+			</ol>
+			<button type="button" id="dataCollectionButton" class="btn btn-warning">Start Data Collection</button>
+		</div>
+		<div class="col-sm-6">
+			<h2 class="text-center">Status</h2>
+		</div>
+		
+	</div>	
 	<script>
-		getTitlesByYear(2018);
+		$(document).ready(function() {
+			getTitlesByYear(2014, function(){ 
+				$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
+					var liElement = $("li").get(data.CurrentMovie);
+
+					liElement.className = "list-group-item active";
+
+					if (data.CurrentMovie > 0) {
+						var prevliElement = $("li").get(data.CurrentMovie - 1);
+						prevliElement.className = "list-group-item";
+					}
+
+					$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
+				});
+			});
+		});
+
+		function updateServerStatus() {
+			$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
+				var liElement = $("li").get(data.CurrentMovie);
+
+				liElement.className = "list-group-item active";
+
+				if (data.CurrentMovie > 0) {
+					var prevliElement = $("li").get(data.CurrentMovie - 1);
+					prevliElement.className = "list-group-item";
+				}
+
+				$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
+			});
+		}
+
+		setInterval(updateServerStatus, 5000);
+
+		$("#dataCollectionButton").click( function() {
+			
+			$.get("http://127.0.0.1:5000/api/startservercontroller/" + 5, function(data, status) {
+				console.log(status);
+			});
+		});
+		
+
 	</script>
 </body>

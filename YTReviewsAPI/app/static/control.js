@@ -1,5 +1,7 @@
-function getTitlesByYear(year) {	
-	fetch('http://127.0.0.1:5000/titles/' + year.toString(10))
+function getTitlesByYear(year, callback) {	
+	fetch('http://127.0.0.1:5000/api/titles/' + year.toString(10), {
+		method:'get',
+	})
 	  .then(function(response) {
 	    return response.json();
 	  })
@@ -7,15 +9,18 @@ function getTitlesByYear(year) {
 	    myJson.titles.forEach(function(title) {
 	    	addToList(title.toString());
 	  	});
-	    return "Media_List";
-	  })
-	  .then(function(listId) {
-	  	highlightFirstListElement(listId);
-	  	return "Media_List";
-	  })
-	  .then(function(listId) {
-	  	getFirstItemFromList(listId);
+	  	callback();
 	  });
+}
+
+
+
+
+function getServerStatus() {
+	fetch('http://127.0.0.1:5000/titles/' + year.toString(10))
+	  .then(function(response) {
+	    return response.json();
+	  })
 }
 
 function addToList(title) {

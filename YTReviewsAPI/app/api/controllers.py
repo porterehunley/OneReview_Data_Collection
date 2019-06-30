@@ -1,12 +1,52 @@
 from app.api import bp
 from app import db
 from app.api.errors import bad_request
-from app.models import Video, Description, Comment, Caption
+from app.models import Video, Description, Comment, Caption, Server_Controller, Admin
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
-from flask import jsonify
 from videoCaptions import get_video_captions
 from app.api.auth import token_auth
+from flask_login import current_user, login_user
+
+from flask import jsonify
 import pickle
+import logging
+import threading
+
+@bp.route('/startservercontroller/<maxVideos>', methods=['GET'])
+def start_server_thread(maxVideos):
+	max_videos = int(maxVideos)
+	if (maxVideos == '' or maxVideos == None): 
+		max_videos = 1
+
+	server_controller_exists = Server_Controller.query.get(1) != None
+
+	if (server_controller_exists):
+		server_controller = Server_Controller.query.get(1)
+		server_controller.access_token = Admin.query.get(1).token
+		server_controller.MAX_VIDEOS = max_videos
+		server_controller.set_media_titles()
+
+		thread = threading.Thread(target=start_server_controller, args=(server_controller,))
+		thread.start()
+
+		return_dict = {'status' : 'success'}
+		return(jsonify(return_dict))
+
+	server_controller = Server_Controller(Admin.query.get(1).token)
+	server_controller.MAX_VIDEOS = max_videos
+	server_controller.CURRENT_MOVIE = 0
+	server_controller.CURRENT_VIDEO_ID = 0
+
+	thread = threading.Thread(target=start_server_controller, args=(server_controller,))
+	thread.start()
+
+	return_dict = {'status' : 'success'}
+	return(jsonify(return_dict))
+
+def start_server_controller(server_controller):
+	server_controller.run()
+	server_controller.save_state()
+
 
 
 @bp.route('/get_movie_titles_file')
@@ -48,7 +88,6 @@ def get_movie_titles():
 		return Response("{'status':'An error occurred!'}", status=500, mimetype='application/json')
 
 @bp.route('/titles/<year>', methods=['GET'])
-@token_auth.login_required
 def return_titles(year):
 	EARLIEST_YEAR = 2014
 	LATEST_YEAR = 2018
@@ -162,83 +201,3 @@ def get_closed_captions(video_id):
 	return_JSON = {"status" : 'success'}
 
 	return(jsonify(return_JSON))
-
-
-
-@bp.route('/list_of_movies', methods=['GET'])
-@token_auth.login_required
-def get_list_of_movies():
-	with open('service1.pkl', 'rb') as input:
-		youtube = pickle.load(input)
-
-	movieTitlesFile = open("movieTitles.txt", "r")
-	NUMBER_OF_LIST_REQUESTS = 1
-	counter = 0
-	MAX_COMMENT_THREADS = 100
-
-	#Get the relevant JSON 
-	for line in movieTitlesFile:
-
-		print("Loading " + line)
-
-		if (counter == NUMBER_OF_LIST_REQUESTS):
-			break
-
-		queryTerm = line[:len(line) - 1] + ' movie review'
-
-		request = youtube.search().list(
-			part="snippet",
-			q=queryTerm,
-			type="video"
-		)
-
-		response = request.execute()
-		movieListJSON = response
-
-		for item in movieListJSON["items"]:
-
-			videoId = item["id"]["videoId"]
-			channelId = item["snippet"]["channelId"]
-			videoTitle = item["snippet"]["title"]
-			videoDescription = item["snippet"]["description"]
-			channelTitle = item["snippet"]["channelTitle"]
-
-			#Add the video stats
-			stats_response = get_video_stats(youtube, videoId)
-
-			view_count = stats_response[0]["statistics"]["viewCount"]
-			like_count = stats_response[0]["statistics"]["likeCount"]
-			dislike_count = stats_response[0]["statistics"]["dislikeCount"]
-			favorite_count = stats_response[0]["statistics"]["favoriteCount"]
-			comment_count = stats_response[0]["statistics"]["commentCount"]
-
-			video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
-				dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count)
-
-			db.session.add(video)
-
-			#Add video description
-			description = Description(body=videoDescription, video_id=videoId)
-			db.session.add(description)
-
-			#Add comments to the video
-			commentThreads = get_comment_threads(youtube, videoId, MAX_COMMENT_THREADS)
-			for item in commentThreads: 
-				parentId = item["id"]
-				topLevelComment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-
-				comment = Comment(body=topLevelComment, video_id=videoId)
-
-				db.session.add(comment)
-
-			#Add the closed captions
-			video_caption_text = get_video_captions(videoId)
-			video_caption = Caption(body=video_caption_text, video_id=videoId)
-			db.session.add(video_caption)
-
-			db.session.commit()
-
-
-		counter += 1
-
-	return Response("{'status':'success!'}", status=200, mimetype='application/json')

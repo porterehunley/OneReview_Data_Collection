@@ -1,6 +1,9 @@
 from app import db
+from app import login
+
 from flask import jsonify
 import requests
+from flask_login import UserMixin
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 import base64
@@ -79,10 +82,17 @@ class Caption(db.Model):
 	def __repr__(self):
 		return '<body= {}>'.format(self.body)
 
-class Admin(db.Model):
+#This helps flask_login determine that the current user of a website is of type 
+#Admin and can verify them as such
+@login.user_loader
+def load_user(id):
+    return Admin.query.get(int(id))
+
+class Admin(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(100), unique=True)
 	token = db.Column(db.String(32), index=True, unique=True)
+	logged_in = db.Column(db.Boolean)
 	password_hash = db.Column(db.String(128))
 
 	def get_token(self):
@@ -117,23 +127,26 @@ class Server_Controller(db.Model):
 	CURRENT_FILE_INDEX = db.Column(db.Integer)
 	CURRENT_MOVIE = db.Column(db.Integer)
 	CURRENT_VIDEO_ID = db.Column(db.Integer)
+	is_running = db.Column(db.Boolean)
 
 	l_movie_titles = []
 	access_token = ''
+	MAX_VIDEOS = 1
 
-	def __init__(self, access_token):
+	def __init__(self, access_token, max_videos=1):
 		self.set_media_titles()
 		self.access_token = access_token
+		self.MAX_VIDEOS = max_videos
 
 
 	def run(self):
 		movie_counter = 0
 		video_counter = 0
-		MAX_VIDEOS = 1
+		self.is_running = True
 
 		for title in self.l_movie_titles[self.CURRENT_MOVIE:]:
-			if (movie_counter == MAX_VIDEOS):
-				return
+			if (movie_counter == self.MAX_VIDEOS):
+				break
 
 			l_videoIDs = self.get_videos(title)
 
@@ -151,6 +164,11 @@ class Server_Controller(db.Model):
 
 			movie_counter += 1
 			self.CURRENT_MOVIE += 1
+			self.save_state()
+
+		self.is_running = False
+		self.save_state()
+
 
 	def set_media_titles(self):
 		self.CURRENT_API = 0

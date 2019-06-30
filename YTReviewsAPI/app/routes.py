@@ -5,16 +5,29 @@ from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment
 from flask import Response
 from flask import jsonify
 from flask import render_template
+from app.api.auth import basic_auth
+from videoCaptions import get_video_captions
+from flask_login import login_required
+
 import requests 
 import datetime
 from lxml import html
 from lxml.etree import tostring
 import pickle
-from videoCaptions import get_video_captions
+from flask_login import current_user, login_user
 
 @app.route('/')
+@app.route('/control')
+@login_required
 def show_control_center():
 	return(render_template('control_page.html'))
+
+@app.route('/login')
+def login():
+	if current_user.is_authenticated:
+		return redirect(url_for('control'))
+
+	return(render_template('login.html'))
 
 @app.route('/get_movie_titles_file')
 def get_movie_titles():
