@@ -62,11 +62,21 @@
 
 		setInterval(updateServerStatus, 5000);
 
-		$("#dataCollectionButton").click( function() {
-			
-			$.get("http://127.0.0.1:5000/api/startservercontroller/" + 5, function(data, status) {
-				console.log(status);
-			});
+		$("#dataCollectionButton").click( function() {	
+			$.ajax
+			({
+		        type: "POST",
+		        //the url where you want to sent the userName and password to
+		        url: 'http://127.0.0.1:5000/api/controlauthentication',
+		        contentType: 'application/json',
+		        async: false,
+		        //json object to sent to the authentication url
+		        data: JSON.stringify({"maxVideos": "5"}),
+		        success: function () {
+					alert("Server Started!"); 
+		        }
+		    });
+
 		});
 		
 

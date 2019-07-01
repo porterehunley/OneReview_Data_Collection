@@ -6,6 +6,8 @@ from flask import request
 from app.api.errors import error_response
 from flask_login import current_user, login_user
 
+import requests
+
 
 @bp.route('/serverstatus', methods=['GET'])
 def return_server_status():
@@ -37,3 +39,14 @@ def check_auth():
 
 	login_user(presumed_admin)
 	return(jsonify(return_dict))
+
+@bp.route('/controlauthentication', methods=['POST'])
+def check_control_auth():
+	data = request.get_json() or {}
+
+	if current_user.is_authenticated:
+		 return requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
+		  headers={'Authorization': 'Bearer '+ current_user.token})
+
+	return(error_response(401, 'not logged in'))
+
