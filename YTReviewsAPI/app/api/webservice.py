@@ -27,7 +27,6 @@ def check_auth():
 	data = request.get_json() or {}
 	presumed_admin = Admin.query.filter_by(username=data['username']).first()
 	return_dict= {'loginStatus' : True}
-	print(presumed_admin)
 
 	if (presumed_admin == None):
 		return_dict['loginStatus'] = False
@@ -37,6 +36,7 @@ def check_auth():
 		return_dict['loginStatus'] = False
 		return(error_response(401, 'username or password incorrect'))
 
+
 	login_user(presumed_admin)
 	return(jsonify(return_dict))
 
@@ -45,10 +45,11 @@ def check_control_auth():
 	data = request.get_json() or {}
 	return_dict= {'status' : 'success'}
 
+
 	if current_user.is_authenticated:
 		requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
 		  headers={'Authorization': 'Bearer '+ current_user.token})
-		return return_dict
+		return(jsonify(return_dict))
 
 
 	return(error_response(401, 'not logged in'))

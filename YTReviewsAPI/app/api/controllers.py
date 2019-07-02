@@ -26,6 +26,7 @@ def start_server_thread(maxVideos):
 		server_controller.access_token = Admin.query.get(1).token
 		server_controller.MAX_VIDEOS = max_videos
 		server_controller.set_media_titles()
+		server_controller.is_running = True
 
 		thread = threading.Thread(target=start_server_controller, args=(server_controller,))
 		thread.start()
@@ -46,9 +47,6 @@ def start_server_thread(maxVideos):
 
 def start_server_controller(server_controller):
 	server_controller.run()
-	server_controller.save_state()
-
-
 
 @bp.route('/get_movie_titles_file')
 @token_auth.login_required
