@@ -32,6 +32,7 @@
 			getTitlesByYear(2014, function(){ 
 				$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
+					$("#current_year").text("Current Year: " + data.currentYear);
 
 					liElement.className = "list-group-item active";
 
@@ -48,6 +49,7 @@
 		function updateServerStatus() {
 			$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
 				var liElement = $("li").get(data.CurrentMovie);
+				$("#current_year").text("Current Year: " + data.currentYear);
 
 				liElement.className = "list-group-item active";
 

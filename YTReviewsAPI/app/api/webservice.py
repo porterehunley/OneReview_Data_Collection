@@ -19,6 +19,17 @@ def return_server_status():
 	return_dict = {'CurrentMovie' : server_controller.CURRENT_MOVIE }
 	return_dict['isRunning'] = server_controller.is_running
 
+	if (server_controller.CURRENT_MOVIE // 50  == 0):
+		return_dict['currentYear'] = 2014
+	if (server_controller.CURRENT_MOVIE // 50  == 1):
+		return_dict['currentYear'] = 2015
+	if (server_controller.CURRENT_MOVIE // 50  == 2):
+		return_dict['currentYear'] = 2016
+	if (server_controller.CURRENT_MOVIE // 50  == 3):
+		return_dict['currentYear'] = 2017
+	if (server_controller.CURRENT_MOVIE // 50  == 4):
+		return_dict['currentYear'] = 2018
+
 	return(jsonify(return_dict))
 
 
