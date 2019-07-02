@@ -4,7 +4,7 @@ from app.models import Video, Description, Comment, Caption
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
 from flask import Response
 from flask import jsonify
-from flask import render_template
+from flask import render_template, redirect, url_for
 from app.api.auth import basic_auth
 from videoCaptions import get_video_captions
 from flask_login import login_required
@@ -25,7 +25,7 @@ def show_control_center():
 @app.route('/login')
 def login():
 	if current_user.is_authenticated:
-		return redirect(url_for('control'))
+		return redirect(url_for('show_control_center'))
 
 	return(render_template('login.html'))
 

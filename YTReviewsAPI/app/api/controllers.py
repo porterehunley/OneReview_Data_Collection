@@ -13,6 +13,7 @@ import logging
 import threading
 
 @bp.route('/startservercontroller/<maxVideos>', methods=['GET'])
+@token_auth.login_required
 def start_server_thread(maxVideos):
 	max_videos = int(maxVideos)
 	if (maxVideos == '' or maxVideos == None): 
