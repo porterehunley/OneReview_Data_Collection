@@ -128,6 +128,7 @@ class Server_Controller(db.Model):
 	CURRENT_MOVIE = db.Column(db.Integer)
 	CURRENT_VIDEO_ID = db.Column(db.Integer)
 	is_running = db.Column(db.Boolean)
+	is_finished = db.Column(db.Boolean)
 
 	l_movie_titles = []
 	access_token = ''
