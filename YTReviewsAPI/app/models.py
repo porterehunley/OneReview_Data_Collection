@@ -179,7 +179,7 @@ class Server_Controller(db.Model):
 
 	def get_videos(self, title):
 		self.CURRENT_API = 1
-		videoIDs_JSON = requests.get('http://127.0.0.1:5000/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
+		videoIDs_JSON = requests.post('http://127.0.0.1:5000/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
 		videoIDs_JSON = videoIDs_JSON.json()
 
 		l_videoIDs = videoIDs_JSON['video_IDs']

@@ -5,12 +5,29 @@ from flask import jsonify
 from flask import request
 from app.api.errors import error_response
 
-@bp.route('/getvideos/<title>', methods=['GET'])
+@bp.route('/videos/<title>', methods=['GET', 'DELETE'])
+@token_auth.login_required
 def return_videos(title):
-	returnAllVideos = title=='all'
+	if (request.method == 'GET'):
 
-	if (returnAllVideos):
-		videos = Video.query.all()		
+		returnAllVideos = title=='all'
+
+		if (returnAllVideos):
+			videos = Video.query.all()		
+			return_dict = {'list':'resource'}
+			l_video_dict = []
+
+			for video in videos:
+				l_video_dict.append(video.to_dict())
+
+			return_dict['videos'] = l_video_dict
+
+
+			return(jsonify(return_dict))
+
+
+		videos = Video.query.filter_by(mediaTitle=title)
+			
 		return_dict = {'list':'resource'}
 		l_video_dict = []
 
@@ -19,25 +36,59 @@ def return_videos(title):
 
 		return_dict['videos'] = l_video_dict
 
+		if (len(l_video_dict) == 0):
+			return error_response(404, title + ' not found')
+
 
 		return(jsonify(return_dict))
 
+	if (request.method == 'DELETE'):
 
-	videos = Video.query.filter_by(mediaTitle=title)
-		
-	return_dict = {'list':'resource'}
-	l_video_dict = []
+		access_token = Admin.query.get(1).first().token
+		videos = Video.query.filter_by(mediaTitle=title).all()
 
-	for video in videos:
-		l_video_dict.append(video.to_dict())
+		if not videos:
+			return error_response(404, 'Videos with that title not found')
 
-	return_dict['videos'] = l_video_dict
+		for video in videos:
+			response = requests.get('http://127.0.0.1:5000/api/videoentry/'+video.id,
+			 headers={'Authorization': 'Bearer '+access_token})
 
-	if (len(l_video_dict) == 0):
-		return error_response(404, title + ' not found')
+			if (response.status != 200):
+				return error_response(response.status, "error getting videos")
 
+
+@bp.route('/videoentry/<videoid>', methods=['DELETE', 'POST'])
+@token_auth.login_required
+def edit_video_entry(videoid):
+	return_dict= {'status' : 'success'}
+
+	if (request.method == 'DELETE'):
+		video = Video.query.filter_by(id=videoid).first()
+		if (video is None):
+			return(error_response(404, 'video not found'))
+
+		description = Description.query.filter_by(video_id=videoid).first()
+		if (description is not None):
+			db.session.delete(description)
+
+		comments = Comment.query.filter_by(video_id=videoid).all()
+		if (comments is not None):
+			for comment in comments:
+				db.session.delete(comment)
+
+		caption = Caption.query.filter_by(video_id=videoid).first()
+		if (caption is not None):
+			db.session.delete(caption)
+
+		db.session.delete(video)
+		db.session.commit()
+
+	if (request.method == 'POST'):
+		pass
 
 	return(jsonify(return_dict))
+		
 
 
 

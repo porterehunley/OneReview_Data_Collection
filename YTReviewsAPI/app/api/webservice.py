@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import request
 from app.api.errors import error_response
 from flask_login import current_user, login_user
+from app.api.auth import token_auth
 
 import requests
 
@@ -33,7 +34,7 @@ def return_server_status():
 	return(jsonify(return_dict))
 
 
-@bp.route('/authentication', methods=['POST'])
+@bp.route('/web/authentication', methods=['POST'])
 def check_auth():
 	data = request.get_json() or {}
 	presumed_admin = Admin.query.filter_by(username=data['username']).first()
@@ -51,17 +52,55 @@ def check_auth():
 	login_user(presumed_admin)
 	return(jsonify(return_dict))
 
-@bp.route('/controlauthentication', methods=['POST'])
+@bp.route('/web/controlauthentication', methods=['POST'])
 def check_control_auth():
 	data = request.get_json() or {}
-	return_dict= {'status' : 'success'}
 
-
-	if current_user.is_authenticated:
-		requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
+	if (current_user.is_authenticated):
+		response = requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
 		  headers={'Authorization': 'Bearer '+ current_user.token})
-		return(jsonify(return_dict))
-
+		return(response)
 
 	return(error_response(401, 'not logged in'))
+
+
+
+@bp.route('/web/videoentry/<videoid>', methods=['DELETE', 'POST'])
+def call_videos(videoid):
+	if (current_user.is_authenticated):
+		if (request.method == 'DELETE'):
+			access_token = Admin.query.get(1).first().token
+			response = requests.delete('http://127.0.0.1:5000/api/videoentry/'+videoid,
+				 headers={'Authorization': 'Bearer '+ access_token})
+			return response
+
+		if (request.method == 'POST'):
+			return_dict= {'status' : 'TODO'}
+			return(jsonify(return_dict))
+
+	return(error_response(401, 'not logged in'))
+
+@bp.route('/web/mediaentry/<title>', methods=['DELETE'])
+def call_mediaentry(title):
+	if (current_user.is_authenticated):
+		access_token = Admin.query.get(1).first().token
+		response = requests.delete('http://127.0.0.1:5000/api/videos/'+videoid,
+			 headers={'Authorization': 'Bearer '+ access_token})
+		return response
+
+	return(error_response(401, 'not logged in'))
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
 

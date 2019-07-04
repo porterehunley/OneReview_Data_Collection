@@ -115,49 +115,50 @@ def return_titles(year):
 	return(jsonify(movie_titles_JSON))
 
 
-@bp.route('/youtube_list/<title>', methods=['GET'])
+@bp.route('/youtube_list/<title>', methods=['GET', 'POST'])
 @token_auth.login_required
 def get_list_of_videos(title):
-	with open('service1.pkl', 'rb') as input:
-		youtube = pickle.load(input)
+	if (request.method == 'POST'):
+		with open('service1.pkl', 'rb') as input:
+			youtube = pickle.load(input)
 
-	MAX_RESULTS = 5
-	queryTerm =  title + ' movie review'
-	movieListJSON = search_videos_list(youtube, queryTerm, MAX_RESULTS)
+		MAX_RESULTS = 5
+		queryTerm =  title + ' movie review'
+		movieListJSON = search_videos_list(youtube, queryTerm, MAX_RESULTS)
 
-	l_video_id = []
+		l_video_id = []
 
-	for item in movieListJSON:
-		videoId = item["id"]["videoId"]
-		channelId = item["snippet"]["channelId"]
-		videoTitle = item["snippet"]["title"]
-		videoDescription = item["snippet"]["description"]
-		channelTitle = item["snippet"]["channelTitle"]
-		mediaTitle = title
+		for item in movieListJSON:
+			videoId = item["id"]["videoId"]
+			channelId = item["snippet"]["channelId"]
+			videoTitle = item["snippet"]["title"]
+			videoDescription = item["snippet"]["description"]
+			channelTitle = item["snippet"]["channelTitle"]
+			mediaTitle = title
 
-		stats_response = get_video_stats(youtube, videoId)
+			stats_response = get_video_stats(youtube, videoId)
 
-		view_count = stats_response[0]["statistics"]["viewCount"]
-		like_count = stats_response[0]["statistics"]["likeCount"]
-		dislike_count = stats_response[0]["statistics"]["dislikeCount"]
-		favorite_count = stats_response[0]["statistics"]["favoriteCount"]
-		comment_count = stats_response[0]["statistics"]["commentCount"]
+			view_count = stats_response[0]["statistics"]["viewCount"]
+			like_count = stats_response[0]["statistics"]["likeCount"]
+			dislike_count = stats_response[0]["statistics"]["dislikeCount"]
+			favorite_count = stats_response[0]["statistics"]["favoriteCount"]
+			comment_count = stats_response[0]["statistics"]["commentCount"]
 
-		l_video_id.append(videoId)
+			l_video_id.append(videoId)
 
-		video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
-			dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
+			video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
+				dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
 
-		db.session.add(video)
+			db.session.add(video)
 
-		#Add video description
-		description = Description(body=videoDescription, video_id=videoId)
-		db.session.add(description)
-		db.session.commit()
+			#Add video description
+			description = Description(body=videoDescription, video_id=videoId)
+			db.session.add(description)
+			db.session.commit()
 
-	return_JSON = {"video_IDs" : l_video_id}
+		return_JSON = {"video_IDs" : l_video_id}
 
-	return(jsonify(return_JSON))
+		return(jsonify(return_JSON))
 
 
 @bp.route('/comment_threads/<video_id>', methods=['GET'])
@@ -200,3 +201,44 @@ def get_closed_captions(video_id):
 	return_JSON = {"status" : 'success'}
 
 	return(jsonify(return_JSON))
+
+@bp.route('/mediaentry/<title>', methods=['DELETE', 'POST'])
+@token_auth.login_required
+def edit_media_entry(title):
+
+	if (request.method == 'DELETE'):
+
+
+
+@bp.route('/videoentry/<videoid>', methods=['DELETE', 'POST'])
+@token_auth.login_required
+def edit_video_entry(videoid):
+	return_dict= {'status' : 'success'}
+
+	if (request.method == 'DELETE'):
+		video = Video.query.filter_by(id=videoid).first()
+		if (video is None):
+			return(error_response(404, 'video not found'))
+
+		description = Description.query.filter_by(video_id=videoid).first()
+		if (description is not None):
+			db.session.delete(description)
+
+		comments = Comment.query.filter_by(video_id=videoid).all()
+		if (comments is not None):
+			for comment in comments:
+				db.session.delete(comment)
+
+		caption = Caption.query.filter_by(video_id=videoid).first()
+		if (caption is not None):
+			db.session.delete(caption)
+
+		db.session.delete(video)
+		db.session.commit()
+
+	if (request.method == 'POST'):
+		pass
+
+	return(jsonify(return_dict))
+
+

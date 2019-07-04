@@ -24,13 +24,14 @@
 		</div>
 		<div class="col-sm-6">
 			<h2 class="text-center">Status</h2>
+			<button type="button" id="dataRemoveButton" class="btn btn-warning">Remove Entry</button>
 		</div>
 		
 	</div>	
 	<script>
 		$(document).ready(function() {
 			getTitlesByYear(2014, function(){ 
-				$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
+				$.get("/api/web/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
 					$("#current_year").text("Current Year: " + data.currentYear);
 
@@ -47,7 +48,7 @@
 		});
 
 		function updateServerStatus() {
-			$.get("http://127.0.0.1:5000/api/serverstatus", function(data, status) {
+			$.get("/api/web/serverstatus", function(data, status) {
 				var liElement = $("li").get(data.CurrentMovie);
 				$("#current_year").text("Current Year: " + data.currentYear);
 
@@ -79,7 +80,7 @@
 			({
 		        type: "POST",
 		        //the url where you want to sent the userName and password to
-		        url: 'http://127.0.0.1:5000/api/controlauthentication',
+		        url: '/api/web/controlauthentication',
 		        contentType: 'application/json',
 		        async: false,
 		        //json object to sent to the authentication url
