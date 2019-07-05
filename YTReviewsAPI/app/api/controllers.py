@@ -115,7 +115,7 @@ def return_titles(year):
 	return(jsonify(movie_titles_JSON))
 
 
-@bp.route('/youtube_list/<title>', methods=['GET'])
+@bp.route('/youtube_list/<title>', methods=['POST'])
 @token_auth.login_required
 def get_list_of_videos(title):
 	with open('service1.pkl', 'rb') as input:
@@ -159,7 +159,6 @@ def get_list_of_videos(title):
 
 	return(jsonify(return_JSON))
 
-
 @bp.route('/comment_threads/<video_id>', methods=['GET'])
 @token_auth.login_required
 def comment_threads(video_id):
@@ -200,3 +199,7 @@ def get_closed_captions(video_id):
 	return_JSON = {"status" : 'success'}
 
 	return(jsonify(return_JSON))
+
+
+
+
