@@ -59,7 +59,7 @@ def check_control_auth():
 	if (current_user.is_authenticated):
 		response = requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
 		  headers={'Authorization': 'Bearer '+ current_user.token})
-		return(response)
+		return(response.content, response.status_code, response.headers.items())
 
 	return(error_response(401, 'not logged in'))
 
@@ -72,7 +72,7 @@ def call_videos(videoid):
 			access_token = Admin.query.get(1).first().token
 			response = requests.delete('http://127.0.0.1:5000/api/videoentry/'+videoid,
 				 headers={'Authorization': 'Bearer '+ access_token})
-			return response
+			return(response.content, response.status_code, response.headers.items())
 
 		if (request.method == 'POST'):
 			return_dict= {'status' : 'TODO'}
@@ -83,10 +83,10 @@ def call_videos(videoid):
 @bp.route('/web/mediaentry/<title>', methods=['DELETE'])
 def call_mediaentry(title):
 	if (current_user.is_authenticated):
-		access_token = Admin.query.get(1).first().token
-		response = requests.delete('http://127.0.0.1:5000/api/videos/'+videoid,
+		access_token = Admin.query.get(1).token
+		response = requests.delete('http://127.0.0.1:5000/api/videos/'+title,
 			 headers={'Authorization': 'Bearer '+ access_token})
-		return response
+		return(response.content, response.status_code, response.headers.items())
 
 	return(error_response(401, 'not logged in'))
 

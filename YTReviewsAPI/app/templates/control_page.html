@@ -19,7 +19,6 @@
 			<h2 class="text-center" id="current_year">Current Year: 2018</h2>
 			<h4 id="Current_Media" class="text-center">Current Movie: N/A</h4>
 			<ol id="Media_List" class="list-group">
-				<li>Click Me</li>
 			</ol>
 			<button type="button" id="dataCollectionButton" class="btn btn-warning">Start Data Collection</button>
 		</div>
@@ -31,27 +30,36 @@
 	</div>	
 	<script>
 		$(document).ready(function() {
-			getTitlesByYear(2014, function(){ 
+			getTitlesByYear(2014, function() { 
 				$.get("/api/web/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
 					$("#current_year").text("Current Year: " + data.currentYear);
 
-					liElement.className = "list-group-item active";
-
-					if (data.CurrentMovie > 0) {
-						var prevliElement = $("li").get(data.CurrentMovie - 1);
-						prevliElement.className = "list-group-item";
-					}
+					liElement.className = "list-group-item list-group-item-success";
 
 					$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
 
 					$("li").click(function() {
 						$("#dataRemoveButton").prop('disabled', false);
-						console.log("li clicked")
-						$('.selected').removeClass('selected');
-					    $(this).addClass('selected');
+						$('.active').removeClass('active');
+					    $(this).addClass('active');
 					});
-				
+				});
+			});
+		});
+		$(document).ready(function() {
+			$("#dataRemoveButton").click(function() {
+				$.ajax({
+					type: "DELETE",
+					url: '/api/web/mediaentry/' + $(".active").text(),
+					async: false,
+					success: function() {
+						$(".active").addClass("list-group-item-danger");
+						$('.active').removeClass('active');
+					},
+					error: function() {
+						alert("Removal failed");
+					}
 				});
 			});
 		});
@@ -63,12 +71,7 @@
 				var liElement = $("li").get(data.CurrentMovie);
 				$("#current_year").text("Current Year: " + data.currentYear);
 
-				liElement.className = "list-group-item active";
-
-				if (data.CurrentMovie > 0) {
-					var prevliElement = $("li").get(data.CurrentMovie - 1);
-					prevliElement.className = "list-group-item";
-				}
+				liElement.className = "list-group-item list-group-item-success";
 
 				$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
 
