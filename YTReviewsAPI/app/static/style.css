@@ -4,3 +4,6 @@
     overflow:scroll;
     -webkit-overflow-scrolling: touch;
 }
+li:hover {
+  background-color: #999;
+}

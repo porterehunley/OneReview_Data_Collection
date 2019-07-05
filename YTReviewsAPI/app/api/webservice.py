@@ -10,7 +10,7 @@ from app.api.auth import token_auth
 import requests
 
 
-@bp.route('/serverstatus', methods=['GET'])
+@bp.route('/web/serverstatus', methods=['GET'])
 def return_server_status():
 	server_controller = Server_Controller.query.get(1)
 

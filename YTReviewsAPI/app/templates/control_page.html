@@ -19,12 +19,13 @@
 			<h2 class="text-center" id="current_year">Current Year: 2018</h2>
 			<h4 id="Current_Media" class="text-center">Current Movie: N/A</h4>
 			<ol id="Media_List" class="list-group">
+				<li>Click Me</li>
 			</ol>
 			<button type="button" id="dataCollectionButton" class="btn btn-warning">Start Data Collection</button>
 		</div>
 		<div class="col-sm-6">
 			<h2 class="text-center">Status</h2>
-			<button type="button" id="dataRemoveButton" class="btn btn-warning">Remove Entry</button>
+			<button type="button" id="dataRemoveButton" class="btn btn-warning" disabled="true">Remove Entry</button>
 		</div>
 		
 	</div>	
@@ -43,9 +44,19 @@
 					}
 
 					$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
+
+					$("li").click(function() {
+						$("#dataRemoveButton").prop('disabled', false);
+						console.log("li clicked")
+						$('.selected').removeClass('selected');
+					    $(this).addClass('selected');
+					});
+				
 				});
 			});
 		});
+
+
 
 		function updateServerStatus() {
 			$.get("/api/web/serverstatus", function(data, status) {
