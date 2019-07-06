@@ -8,11 +8,31 @@ from app.api.auth import token_auth
 
 import requests
 
-@bp.route('/videos/<title>', methods=['GET', 'DELETE'])
+@bp.route('/checkvideos/<videoid>', methods=['GET'])
+@token_auth.login_required
+def check_video(videoid):
+	video = Video.query.filter_by(id=videoid)
+	return_dict = {'status' : 'success'}
+	if (video == None):
+		return error_response(404, 'video not found')
+
+	return(jsonify(return_dict))
+
+@bp.route('/checkmedia/<title>', methods=['GET'])
+@token_auth.login_required
+def check_media(title):
+	videos = Video.query.filter_by(mediaTitle=title).all()
+	return_dict = {'status' : 'success'}
+	if (not videos):
+		return error_response(404, 'Videos with that title not found')
+
+	return(jsonify(return_dict))
+
+
+@bp.route('/videos/<title>', methods=['GET', 'DELETE', 'POST'])
 @token_auth.login_required
 def return_videos(title):
 	if (request.method == 'GET'):
-
 		returnAllVideos = title=='all'
 
 		if (returnAllVideos):
@@ -46,7 +66,6 @@ def return_videos(title):
 		return(jsonify(return_dict))
 
 	if (request.method == 'DELETE'):
-
 		access_token = Admin.query.get(1).token
 		videos = Video.query.filter_by(mediaTitle=title)
 
@@ -59,6 +78,25 @@ def return_videos(title):
 
 			if (response.status_code != 200):
 				return error_response(response.status_code, "error getting videos")
+
+	if (request.method == 'POST'):
+		access_token = Admin.query.get(1).token
+		videoIDs_JSON = requests.post('http://127.0.0.1:5000/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+access_token})
+		videoIDs_JSON = videoIDs_JSON.json()
+
+		l_videoIDs = videoIDs_JSON['video_IDs']
+
+		for video_id in l_videoIDs:
+
+			#Get the comment threads
+			response = requests.get('http://127.0.0.1:5000/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+access_token})
+			if (response.status_code != requests.codes.ok):
+				pass
+
+			#Get the captions
+			response = requests.get('http://127.0.0.1:5000/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+access_token})
+			if (response.status_code != requests.codes.ok):
+				pass
 
 	return(jsonify({"status": "success"}))
 
@@ -90,7 +128,14 @@ def edit_video_entry(videoid):
 		db.session.commit()
 
 	if (request.method == 'POST'):
-		pass
+		video = Video.query.filter_by(id=videoid).first()
+		access_token = Admin.query.get(1).token
+
+		if (video is not None):
+			return(error_response(405, 'video is already in database'))
+
+		#TODO
+
 
 	return(jsonify(return_dict))
 		

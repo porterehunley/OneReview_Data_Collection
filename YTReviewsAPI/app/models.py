@@ -119,7 +119,6 @@ class Admin(UserMixin, db.Model):
 #The server controller calls the internal APIs in sequential
 #order and monitors their responses 
 
-#TODO check quotas
 
 class Server_Controller(db.Model):
 	id = db.Column(db.Integer, primary_key=True)

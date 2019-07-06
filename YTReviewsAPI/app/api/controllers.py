@@ -167,10 +167,8 @@ def comment_threads(video_id):
 
 	MAX_COMMENT_THREADS = 100
 
-	print('getting comment threads')
 	commentThreads = get_comment_threads(youtube, video_id, MAX_COMMENT_THREADS)
 
-	print('parsing JSON')
 	for item in commentThreads: 
 		parentId = item["id"]
 		topLevelComment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
@@ -180,7 +178,6 @@ def comment_threads(video_id):
 		db.session.add(comment)
 
 	db.session.commit()
-	print('returning')
 
 	return_JSON = {"status" : 'success'}
 

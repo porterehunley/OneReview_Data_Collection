@@ -25,6 +25,7 @@
 		<div class="col-sm-6">
 			<h2 class="text-center">Status</h2>
 			<button type="button" id="dataRemoveButton" class="btn btn-warning" disabled="true">Remove Entry</button>
+			<button type="button" id="dataAddButton" class="btn btn-warning" disabled="true">Add Entry</button>
 		</div>
 		
 	</div>	
@@ -33,7 +34,21 @@
 			getTitlesByYear(2014, function() { 
 				$.get("/api/web/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
-					$("#current_year").text("Current Year: " + data.currentYear);
+					$("#current_year").text("Current Year: " + data.currentYear)
+
+					$.get("/api/web/videostatus/"+data.currentYear, function(dataTwo, statusTwo) {
+						var counter = 0;
+						dataTwo.mediaStatus.forEach(function(element) {
+							console.log(element);
+							var liElementTwo = $("li").get(counter);
+							liElementTwo.className = "list-group-item list-group-item-success"
+							if (element[1] == 0) {
+								liElementTwo.className = "list-group-item list-group-item-danger"
+							}
+							counter += 1;
+						});
+
+					});
 
 					liElement.className = "list-group-item list-group-item-success";
 
@@ -41,12 +56,14 @@
 
 					$("li").click(function() {
 						$("#dataRemoveButton").prop('disabled', false);
+						$("#dataAddButton").prop('disabled', false);
 						$('.active').removeClass('active');
 					    $(this).addClass('active');
 					});
 				});
 			});
 		});
+
 		$(document).ready(function() {
 			$("#dataRemoveButton").click(function() {
 				$.ajax({
@@ -54,6 +71,7 @@
 					url: '/api/web/mediaentry/' + $(".active").text(),
 					async: false,
 					success: function() {
+						$(".active").removeClass("list-group-item-success");
 						$(".active").addClass("list-group-item-danger");
 						$('.active').removeClass('active');
 					},
@@ -63,6 +81,25 @@
 				});
 			});
 		});
+
+		$(document).ready(function() {
+			$("#dataAddButton").click(function() {
+				$.ajax({
+					type: "POST",
+					url: '/api/web/mediaentry/' + $(".active").text(),
+					async: false,
+					success: function() {
+						$(".active").removeClass("list-group-item-danger");
+						$(".active").addClass("list-group-item-success");
+						$('.active').removeClass('active');
+					},
+					error: function() {
+						alert("Removal failed");
+					}
+				});
+			});
+		});
+
 
 
 

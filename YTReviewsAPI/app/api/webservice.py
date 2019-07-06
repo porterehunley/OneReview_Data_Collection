@@ -33,6 +33,32 @@ def return_server_status():
 
 	return(jsonify(return_dict))
 
+@bp.route('/web/videostatus/<year>', methods=['GET'])
+def get_video_status(year):
+	access_token = Admin.query.get(1).token
+	response = requests.get('http://127.0.0.1:5000/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
+	if (response.status_code == 404):
+		return(error_response(404, 'could not find titles'))
+
+	response_JSON = response.json()
+	return_dict = {'title': 'status'}
+	l_status_tuples = []
+
+	if (current_user.is_authenticated):
+		for title in response_JSON["titles"]:
+			response = requests.get('http://127.0.0.1:5000/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token})
+			if (response.status_code == 404):
+				l_status_tuples.append((title, "0"))
+			else:
+				l_status_tuples.append((title, "1"))
+
+		return_dict['mediaStatus'] = l_status_tuples
+
+		return(jsonify(return_dict))
+
+	return(error_response(401, "user unauthorized"))
+
+
 
 @bp.route('/web/authentication', methods=['POST'])
 def check_auth():
@@ -80,13 +106,21 @@ def call_videos(videoid):
 
 	return(error_response(401, 'not logged in'))
 
-@bp.route('/web/mediaentry/<title>', methods=['DELETE'])
+@bp.route('/web/mediaentry/<title>', methods=['DELETE', 'POST'])
 def call_mediaentry(title):
 	if (current_user.is_authenticated):
-		access_token = Admin.query.get(1).token
-		response = requests.delete('http://127.0.0.1:5000/api/videos/'+title,
-			 headers={'Authorization': 'Bearer '+ access_token})
-		return(response.content, response.status_code, response.headers.items())
+		if (request.method == 'DELETE'):
+			access_token = Admin.query.get(1).token
+			response = requests.delete('http://127.0.0.1:5000/api/videos/'+title,
+				 headers={'Authorization': 'Bearer '+ access_token})
+			return(response.content, response.status_code, response.headers.items())
+
+		if (request.method == 'POST'):
+			access_token = Admin.query.get(1).token
+			response = requests.post('http://127.0.0.1:5000/api/videos/'+title,
+				 headers={'Authorization': 'Bearer '+ access_token})
+			return(response.content, response.status_code, response.headers.items())
+
 
 	return(error_response(401, 'not logged in'))
 
