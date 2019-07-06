@@ -80,13 +80,21 @@ def call_videos(videoid):
 
 	return(error_response(401, 'not logged in'))
 
-@bp.route('/web/mediaentry/<title>', methods=['DELETE'])
+@bp.route('/web/mediaentry/<title>', methods=['DELETE', 'POST'])
 def call_mediaentry(title):
 	if (current_user.is_authenticated):
-		access_token = Admin.query.get(1).token
-		response = requests.delete('http://127.0.0.1:5000/api/videos/'+title,
-			 headers={'Authorization': 'Bearer '+ access_token})
-		return(response.content, response.status_code, response.headers.items())
+		if (request.method == 'DELETE'):
+			access_token = Admin.query.get(1).token
+			response = requests.delete('http://127.0.0.1:5000/api/videos/'+title,
+				 headers={'Authorization': 'Bearer '+ access_token})
+			return(response.content, response.status_code, response.headers.items())
+
+		if (request.method == 'POST'):
+			access_token = Admin.query.get(1).token
+			response = requests.post('http://127.0.0.1:5000/api/videos/'+title,
+				 headers={'Authorization': 'Bearer '+ access_token})
+			return(response.content, response.status_code, response.headers.items())
+
 
 	return(error_response(401, 'not logged in'))
 
