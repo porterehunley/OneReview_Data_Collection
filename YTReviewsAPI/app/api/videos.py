@@ -8,6 +8,27 @@ from app.api.auth import token_auth
 
 import requests
 
+@bp.route('/checkvideos/<videoid>', methods=['GET'])
+@token_auth.login_required
+def check_video(videoid):
+	video = Video.query.filter_by(id=videoid)
+	return_dict = {'status' : 'success'}
+	if (video == None):
+		return error_response(404, 'video not found')
+
+	return(jsonify(return_dict))
+
+@bp.route('/checkmedia/<title>', methods=['GET'])
+@token_auth.login_required
+def check_media(title):
+	videos = Video.query.filter_by(mediaTitle=title)
+	return_dict = {'status' : 'success'}
+	if (not videos):
+		return error_response(404, 'Videos with that title not found')
+
+	return(jsonify(return_dict))
+
+
 @bp.route('/videos/<title>', methods=['GET', 'DELETE', 'POST'])
 @token_auth.login_required
 def return_videos(title):

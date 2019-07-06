@@ -34,7 +34,10 @@
 			getTitlesByYear(2014, function() { 
 				$.get("/api/web/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
-					$("#current_year").text("Current Year: " + data.currentYear);
+					$("#current_year").text("Current Year: " + data.currentYear).get("/api/web/videostatus/"+data.CurrentYear, function(data, status) {
+						
+
+					});
 
 					liElement.className = "list-group-item list-group-item-success";
 
@@ -83,6 +86,7 @@
 				});
 			});
 		});
+
 
 
 
