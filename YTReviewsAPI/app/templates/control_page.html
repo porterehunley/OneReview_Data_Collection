@@ -34,8 +34,19 @@
 			getTitlesByYear(2014, function() { 
 				$.get("/api/web/serverstatus", function(data, status) {
 					var liElement = $("li").get(data.CurrentMovie);
-					$("#current_year").text("Current Year: " + data.currentYear).get("/api/web/videostatus/"+data.CurrentYear, function(data, status) {
-						
+					$("#current_year").text("Current Year: " + data.currentYear)
+
+					$.get("/api/web/videostatus/"+data.currentYear, function(dataTwo, statusTwo) {
+						var counter = 0;
+						dataTwo.mediaStatus.forEach(function(element) {
+							console.log(element);
+							var liElementTwo = $("li").get(counter);
+							liElementTwo.className = "list-group-item list-group-item-success"
+							if (element[1] == 0) {
+								liElementTwo.className = "list-group-item list-group-item-danger"
+							}
+							counter += 1;
+						});
 
 					});
 
@@ -60,6 +71,7 @@
 					url: '/api/web/mediaentry/' + $(".active").text(),
 					async: false,
 					success: function() {
+						$(".active").removeClass("list-group-item-success");
 						$(".active").addClass("list-group-item-danger");
 						$('.active').removeClass('active');
 					},
@@ -77,6 +89,7 @@
 					url: '/api/web/mediaentry/' + $(".active").text(),
 					async: false,
 					success: function() {
+						$(".active").removeClass("list-group-item-danger");
 						$(".active").addClass("list-group-item-success");
 						$('.active').removeClass('active');
 					},

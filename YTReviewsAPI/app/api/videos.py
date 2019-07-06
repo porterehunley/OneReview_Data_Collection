@@ -21,7 +21,7 @@ def check_video(videoid):
 @bp.route('/checkmedia/<title>', methods=['GET'])
 @token_auth.login_required
 def check_media(title):
-	videos = Video.query.filter_by(mediaTitle=title)
+	videos = Video.query.filter_by(mediaTitle=title).all()
 	return_dict = {'status' : 'success'}
 	if (not videos):
 		return error_response(404, 'Videos with that title not found')

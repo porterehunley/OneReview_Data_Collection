@@ -35,14 +35,18 @@ def return_server_status():
 
 @bp.route('/web/videostatus/<year>', methods=['GET'])
 def get_video_status(year):
-	response = requests.get('http://127.0.0.1:5000/api/titles' + year)
+	access_token = Admin.query.get(1).token
+	response = requests.get('http://127.0.0.1:5000/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
+	if (response.status_code == 404):
+		return(error_response(404, 'could not find titles'))
+
 	response_JSON = response.json()
 	return_dict = {'title': 'status'}
 	l_status_tuples = []
 
 	if (current_user.is_authenticated):
 		for title in response_JSON["titles"]:
-			response = requests.get('http://127.0.0.1:5000/api/checkmedia/'+title)
+			response = requests.get('http://127.0.0.1:5000/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token})
 			if (response.status_code == 404):
 				l_status_tuples.append((title, "0"))
 			else:
