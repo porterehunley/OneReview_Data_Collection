@@ -14,10 +14,16 @@ import requests
 def return_server_status():
 	server_controller = Server_Controller.query.get(1)
 
-	if (server_controller == None):
-		return error_response(404, 'no collection running')
+	return_dict={'server_controller':'status'}
 
-	return_dict = {'CurrentMovie' : server_controller.CURRENT_MOVIE }
+	if (server_controller == None):
+		return_dict['status'] = 'No collection running'
+		return_dict['CurrentMovie'] = 'N/A'
+		return_dict['isRunning'] = False
+		return_dict['currentYear'] = 'N/A'
+		return(jsonify(return_dict))
+
+	return_dict['CurrentMovie'] = server_controller.CURRENT_MOVIE
 	return_dict['isRunning'] = server_controller.is_running
 
 	if (server_controller.CURRENT_MOVIE // 50  == 0):
@@ -78,12 +84,11 @@ def check_auth():
 	login_user(presumed_admin)
 	return(jsonify(return_dict))
 
-@bp.route('/web/controlauthentication', methods=['POST'])
-def check_control_auth():
-	data = request.get_json() or {}
+@bp.route('/web/controlauthentication/<maxVideos>', methods=['POST'])
+def check_control_auth(maxVideos):
 
 	if (current_user.is_authenticated):
-		response = requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ data['maxVideos'],
+		response = requests.get('http://127.0.0.1:5000/api/startservercontroller/'+ maxVideos,
 		  headers={'Authorization': 'Bearer '+ current_user.token})
 		return(response.content, response.status_code, response.headers.items())
 
