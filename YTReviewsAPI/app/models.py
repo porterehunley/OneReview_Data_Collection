@@ -144,23 +144,11 @@ class Server_Controller(db.Model):
 		video_counter = 0
 		self.is_running = True
 
+
 		for title in self.l_movie_titles[self.CURRENT_MOVIE:]:
 			if (movie_counter == self.MAX_VIDEOS):
 				break
-
-			l_videoIDs = self.get_videos(title)
-
-			for video_id in l_videoIDs[self.CURRENT_VIDEO_ID:]:
-				
-				if (self.CURRENT_API == 1):
-					self.get_comment_threads(video_id)
-
-				if (self.CURRENT_API == 2):
-					self.get_video_captions(video_id)
-
-				self.CURRENT_VIDEO_ID += 1
-
-			self.CURRENT_VIDEO_ID = 0
+			videoIDs_JSON = requests.post('http://127.0.0.1:5000/api/videos/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
 
 			movie_counter += 1
 			self.CURRENT_MOVIE += 1
