@@ -116,7 +116,7 @@ def call_mediaentry(title):
 	if (current_user.is_authenticated):
 		if (request.method == 'DELETE'):
 			access_token = Admin.query.get(1).token
-			response = requests.delete('/api/videos/'+title,
+			response = requests.delete('http://localhost:8000/api/videos/'+title,
 				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
