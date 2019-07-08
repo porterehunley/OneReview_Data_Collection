@@ -42,7 +42,7 @@ def return_server_status():
 @bp.route('/web/videostatus/<year>', methods=['GET'])
 def get_video_status(year):
 	access_token = Admin.query.get(1).token
-	response = requests.get('http://localhost:8000/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token}, verify=False)
+	response = requests.get('http://localhost:8000/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
 	if (response.status_code == 404):
 		return(error_response(404, 'could not find titles'))
 
@@ -52,7 +52,7 @@ def get_video_status(year):
 
 	if (current_user.is_authenticated):
 		for title in response_JSON["titles"]:
-			response = requests.get('http://localhost:8000/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token}, verify=False)
+			response = requests.get('http://localhost:8000/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token})
 			if (response.status_code == 404):
 				l_status_tuples.append((title, "0"))
 			else:
@@ -102,7 +102,7 @@ def call_videos(videoid):
 		if (request.method == 'DELETE'):
 			access_token = Admin.query.get(1).first().token
 			response = requests.delete('http://localhost:8000/api/videoentry/'+videoid,
-				 headers={'Authorization': 'Bearer '+ access_token}, verify=False)
+				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
 		if (request.method == 'POST'):
@@ -117,13 +117,13 @@ def call_mediaentry(title):
 		if (request.method == 'DELETE'):
 			access_token = Admin.query.get(1).token
 			response = requests.delete('/api/videos/'+title,
-				 headers={'Authorization': 'Bearer '+ access_token}, verify=False)
+				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
 		if (request.method == 'POST'):
 			access_token = Admin.query.get(1).token
 			response = requests.post('http://localhost:8000/api/videos/'+title,
-				 headers={'Authorization': 'Bearer '+ access_token}, verify=False)
+				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
 
