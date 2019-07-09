@@ -73,7 +73,7 @@ def return_videos(title):
 			return error_response(404, 'Videos with that title not found')
 
 		for video in videos:
-			response = requests.delete('http://localhost:8000/api/videoentry/'+video.id,
+			response = requests.delete('https://truereview.dev/api/videoentry/'+video.id,
 			 headers={'Authorization': 'Bearer '+access_token})
 
 			if (response.status_code != 200):
@@ -81,7 +81,7 @@ def return_videos(title):
 
 	if (request.method == 'POST'):
 		access_token = Admin.query.get(1).token
-		videoIDs_JSON = requests.post('http://localhost:8000/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+access_token})
+		videoIDs_JSON = requests.post('https://truereview.dev/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+access_token})
 		videoIDs_JSON = videoIDs_JSON.json()
 
 		l_videoIDs = videoIDs_JSON['video_IDs']
@@ -89,12 +89,12 @@ def return_videos(title):
 		for video_id in l_videoIDs:
 
 			#Get the comment threads
-			response = requests.get('http://localhost:8000/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+access_token})
+			response = requests.get('https://truereview.dev/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+access_token})
 			if (response.status_code != requests.codes.ok):
 				pass
 
 			#Get the captions
-			response = requests.get('http://localhost:8000/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+access_token})
+			response = requests.get('https://truereview.dev/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+access_token})
 			if (response.status_code != requests.codes.ok):
 				pass
 
