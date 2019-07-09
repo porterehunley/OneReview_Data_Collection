@@ -148,7 +148,7 @@ class Server_Controller(db.Model):
 		for title in self.l_movie_titles[self.CURRENT_MOVIE:]:
 			if (movie_counter == self.MAX_VIDEOS):
 				break
-			videoIDs_JSON = requests.post('https://3.220.32.205/api/videos/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
+			videoIDs_JSON = requests.post('https://truereview.dev/api/videos/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
 
 			movie_counter += 1
 			self.CURRENT_MOVIE += 1
@@ -166,7 +166,7 @@ class Server_Controller(db.Model):
 
 	def get_videos(self, title):
 		self.CURRENT_API = 1
-		videoIDs_JSON = requests.post('https://3.220.32.205/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
+		videoIDs_JSON = requests.post('https://truereview.dev/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+self.access_token})
 		videoIDs_JSON = videoIDs_JSON.json()
 
 		l_videoIDs = videoIDs_JSON['video_IDs']
@@ -176,13 +176,13 @@ class Server_Controller(db.Model):
 
 	def get_comment_threads(self, video_id):
 		self.CURRENT_API = 2
-		response = requests.get('https://3.220.32.205/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
+		response = requests.get('https://truereview.dev/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
 		if (response.status_code != requests.codes.ok):
 			pass
 
 	def get_video_captions(self, video_id):
 		self.CURRENT_API = 1
-		response = requests.get('https://3.220.32.205/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
+		response = requests.get('https://truereview.dev/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+self.access_token})
 		if (response.status_code != requests.codes.ok):
 			pass
 

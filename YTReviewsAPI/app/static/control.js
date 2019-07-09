@@ -1,5 +1,5 @@
 function getTitlesByYear(year, callback) {	
-	fetch('https://3.220.32.205/api/titles/' + year.toString(10), {
+	fetch('https://truereview.dev/api/titles/' + year.toString(10), {
 		method:'get',
 	})
 	  .then(function(response) {
