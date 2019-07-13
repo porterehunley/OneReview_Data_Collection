@@ -80,6 +80,7 @@ def return_videos(title):
 				return error_response(response.status_code, "error getting videos")
 
 	if (request.method == 'POST'):
+		print("Getting " + title)
 		access_token = Admin.query.get(1).token
 		videoIDs_JSON = requests.post('https://truereview.dev/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+access_token})
 		videoIDs_JSON = videoIDs_JSON.json()
@@ -89,14 +90,16 @@ def return_videos(title):
 		for video_id in l_videoIDs:
 
 			#Get the comment threads
+			print("getting comments")
 			response = requests.get('https://truereview.dev/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+access_token})
 			if (response.status_code != requests.codes.ok):
-				pass
+				return error_response(response.status_code, "error getting comment threads")
 
 			#Get the captions
+			print("getting captions")
 			response = requests.get('https://truereview.dev/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+access_token})
 			if (response.status_code != requests.codes.ok):
-				pass
+				return error_response(response.status_code, "error getting video captions")
 
 	return(jsonify({"status": "success"}))
 

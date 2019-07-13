@@ -167,6 +167,7 @@ def comment_threads(video_id):
 
 	MAX_COMMENT_THREADS = 100
 
+	print("Calling youtube for comments")
 	commentThreads = get_comment_threads(youtube, video_id, MAX_COMMENT_THREADS)
 
 	for item in commentThreads: 
@@ -174,9 +175,11 @@ def comment_threads(video_id):
 		topLevelComment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
 
 		comment = Comment(body=topLevelComment, video_id=video_id)
+		print(comment)
 
 		db.session.add(comment)
-
+		
+	print("Adding comments to data base")
 	db.session.commit()
 
 	return_JSON = {"status" : 'success'}
