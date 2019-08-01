@@ -5,6 +5,7 @@ from flask import jsonify
 from flask import request
 from app.api.errors import error_response
 from app.api.auth import token_auth
+from app.api.controllers import return_titles
 
 import requests
 
@@ -141,6 +142,42 @@ def edit_video_entry(videoid):
 
 
 	return(jsonify(return_dict))
+
+#This route is for the go backend to call to get the bare minimum data needed to display
+@bp.route('/govideos/<title>', methods=['GET'])
+# @token_auth.login_required
+def get_go_videos(title):
+	if title == "all":
+		#videos = Video.query.all()
+		#for video in videos:
+			#TODO do score stuff here
+		#TODO make the titles have a return all option
+		response = requests.get('http://localhost:5000/api/titles/2014')
+		response_JSON = response.json()
+		failed_responses = 0
+		for title in response_JSON["titles"]:
+			return_dict={"title" : title}
+			return_dict["score"]="69"
+			return_dict["date"]="02/04/1999"
+			response = requests.post('http://truereview.network/api/movies/p', json=return_dict)
+			if response.status_code != requests.codes.ok:
+				failed_responses += 1
+		return(jsonify({"failedResponses" : failed_responses}))
+
+
+
+	videos = Video.query.filter_by(mediaTitle=title).all()
+	#for video in videos:
+		#Do stuff here like compress score 
+	return_dict={"title" : title}
+
+	#TODO get an actual score
+	return_dict["score"]="69"
+
+	#TODO get an actual date
+	return_dict["date"]="02/04/1999"
+
+	return jsonify(return_dict)
 		
 
 
