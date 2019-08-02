@@ -20,12 +20,47 @@
 			<h4 id="Current_Media" class="text-center">Current Movie: N/A</h4>
 			<ol id="Media_List" class="list-group">
 			</ol>
-			<button type="button" id="dataCollectionButton" class="btn btn-warning">Start Data Collection</button>
 		</div>
 		<div class="col-sm-6">
-			<h2 class="text-center">Status</h2>
+			<h2 class="text-center">Actions</h2>
 			<button type="button" id="dataRemoveButton" class="btn btn-warning" disabled="true">Remove Entry</button>
+			<button type="button" id="dataCollectionButton" class="btn btn-warning">Start Data Collection</button>
 			<button type="button" id="dataAddButton" class="btn btn-warning" disabled="true">Add Entry</button>
+			<button type="button" id="videoViewButton" class="btn btn-primary" disabled="true">View Video Components</button>
+			<p id="videoViewDialog"></p>
+			<form class="form-inline" id="videoViewsForm">
+			</form>
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$("#videoViewButton").click(function() {
+						$.get('/api/web/videoview/' + $(".active").text(), function(data) {
+							var formNode = document.getElementById("videoViewsForm")
+							while (formNode.firstChild) {
+								formNode.removeChild(formNode.firstChild);
+							}
+							data.videoViews.forEach(function(element) {
+								var formGroup = document.createElement('DIV');
+								formGroup.className = "form-group";
+								var inputElement = document.createElement('input');
+								var labelElement = document.createElement('label');
+								var titleNode = document.createTextNode(element.title);
+								labelElement.appendChild(titleNode);
+								formGroup.appendChild(labelElement);
+								formGroup.appendChild(inputElement);
+								
+								var formParent = document.getElementById("videoViewsForm");
+								formParent.appendChild(formGroup);
+							});
+							var formButton = document.createElement('button');
+							formButton.setAttribute("class", "btn btn-success");
+							var buttonText = document.createTextNode("submit scores");
+							formButton.appendChild(buttonText);
+							var buttonParent = document.getElementById("videoViewsForm");
+							buttonParent.appendChild(formButton);
+						});
+					});
+				});
+			</script>
 			<form>
 				<div class="form-group">
 				    <label for="videoLimit">Maximum Vidoes:</label>
@@ -62,6 +97,7 @@
 					$("li").click(function() {
 						$("#dataRemoveButton").prop('disabled', false);
 						$("#dataAddButton").prop('disabled', false);
+						$("#videoViewButton").prop('disabled', false);
 						$('.active').removeClass('active');
 					    $(this).addClass('active');
 					});
