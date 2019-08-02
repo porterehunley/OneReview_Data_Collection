@@ -20,6 +20,7 @@ class Video(db.Model):
 	favoriteCount = db.Column(db.Integer)
 	commentCount = db.Column(db.Integer)
 	channel_id = db.Column(db.String(30))
+	score = db.Column(db.Integer)
 	description = db.relationship("Description", lazy='dynamic')
 	comments = db.relationship("Comment", lazy='dynamic')
 	caption = db.relationship("Caption", lazy='dynamic')
