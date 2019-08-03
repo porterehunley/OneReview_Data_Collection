@@ -28,38 +28,87 @@
 			<button type="button" id="dataAddButton" class="btn btn-warning" disabled="true">Add Entry</button>
 			<button type="button" id="videoViewButton" class="btn btn-primary" disabled="true">View Video Components</button>
 			<p id="videoViewDialog"></p>
-			<form class="form-inline" id="videoViewsForm">
+			<form id="videoViewsForm">
 			</form>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$("#videoViewButton").click(function() {
+						var formNode = document.getElementById("videoViewsForm")
+						while (formNode.firstChild) {
+							formNode.removeChild(formNode.firstChild);
+						}
+						var mediaNode = document.createElement('H3');
+						mediaNode.appendChild(document.createTextNode($(".active").text()));
+						mediaNode.setAttribute("id","formMediaTitle");
+						formNode.appendChild(mediaNode);
 						$.get('/api/web/videoview/' + $(".active").text(), function(data) {
-							var formNode = document.getElementById("videoViewsForm")
-							while (formNode.firstChild) {
-								formNode.removeChild(formNode.firstChild);
-							}
+							
+							var counter = 0;
 							data.videoViews.forEach(function(element) {
 								var formGroup = document.createElement('DIV');
 								formGroup.className = "form-group";
+								formGroup.setAttribute("id", "form-group-"+counter);
 								var inputElement = document.createElement('input');
+								inputElement.setAttribute("type","text");
+								inputElement.setAttribute("class", "form-control");
+								inputElement.setAttribute("id","input-"+counter);
 								var labelElement = document.createElement('label');
+								labelElement.setAttribute("for","input-"+counter);
 								var titleNode = document.createTextNode(element.title);
 								labelElement.appendChild(titleNode);
 								formGroup.appendChild(labelElement);
 								formGroup.appendChild(inputElement);
 								
-								var formParent = document.getElementById("videoViewsForm");
-								formParent.appendChild(formGroup);
+								formNode.appendChild(formGroup);
+								counter = counter + 1;
 							});
 							var formButton = document.createElement('button');
 							formButton.setAttribute("class", "btn btn-success");
+							formButton.setAttribute("id", "videoViewFormButton");
+							formButton.setAttribute("onclick", "return sendVideoViewData()");
 							var buttonText = document.createTextNode("submit scores");
 							formButton.appendChild(buttonText);
-							var buttonParent = document.getElementById("videoViewsForm");
-							buttonParent.appendChild(formButton);
+							formNode.appendChild(formButton);
 						});
 					});
 				});
+				function sendVideoViewData() {
+					var jsonObj = {};
+					var mediaTitle = document.getElementById("formMediaTitle").textContent;
+					var videoData = [];
+					for (i = 0; i < 5; i++) {
+						var formElement = document.getElementById("form-group-"+i);
+						var videoTitle = formElement.firstChild.textContent;
+						console.log(videoTitle);
+						var videoScore = formElement.lastChild.value;
+						console.log(videoScore);
+						videoData[i] = {
+							"title":videoTitle,
+							"score":videoScore
+						}
+					}
+					jsonObj["mediaTitle"] = mediaTitle;
+					jsonObj["videos"] = videoData;
+					var data = JSON.stringify(jsonObj);
+					console.log(videoData);
+					console.log(jsonObj);
+					console.log(data);
+					$.ajax({
+						type: 'POST',
+						url: '/api/web/videoview/title',
+						data: data,
+						contentType: "application/json",
+						success: function(resp) {
+							console.log(resp);
+						},
+						error: function(resp) {
+							console.log(resp);
+						}
+					});
+					return false;
+				}
+
+			
 			</script>
 			<form>
 				<div class="form-group">

@@ -146,7 +146,7 @@ def get_list_of_videos(title):
 		l_video_id.append(videoId)
 
 		video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
-			dislikeCount=dislike_count, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
+			dislikeCount=dislike_count, channel_id=channelId, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
 
 		db.session.add(video)
 

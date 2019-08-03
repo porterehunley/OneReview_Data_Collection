@@ -128,17 +128,26 @@ def call_mediaentry(title):
 
 	return(error_response(401, 'not logged in'))
 
-@bp.route('/web/videoview/<title>', methods=['GET'])
+@bp.route('/web/videoview/<title>', methods=['GET', 'POST'])
 def get_video_views(title):
 	if (current_user.is_authenticated):
-		videos = Video.query.filter_by(mediaTitle=title).all()
-		l_video_views = []
-		for video in videos:
-			l_video_views.append({
-				"title" : video.title,
-				"score" : video.score
-				})
-		return(jsonify({"videoViews" : l_video_views}))
+		if (request.method == 'GET'):
+			videos = Video.query.filter_by(mediaTitle=title).all()
+			l_video_views = []
+			for video in videos:
+				l_video_views.append({
+					"title" : video.title,
+					"score" : video.score,
+					"id" : video.id
+					})
+			return(jsonify({"videoViews" : l_video_views}))
+
+		if (request.method == 'POST'):
+			data = request.get_json() or {}
+			for videoView in data['videos']:
+				print(videoView['title'])
+				print(videoView['score'])
+				
 
 	return(error_response(401, 'not logged in'))	
 
