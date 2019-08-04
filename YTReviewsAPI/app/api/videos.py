@@ -6,8 +6,11 @@ from flask import request
 from app.api.errors import error_response
 from app.api.auth import token_auth
 from app.api.controllers import return_titles
+from app.api.utils import get_movie_titles, get_youtube_list, comment_threads, remove_video_entry
+from videoCaptions import get_video_captions
 
 import requests
+import pickle
 
 @bp.route('/checkvideos/<videoid>', methods=['GET'])
 @token_auth.login_required
@@ -74,17 +77,15 @@ def return_videos(title):
 			return error_response(404, 'Videos with that title not found')
 
 		for video in videos:
-			response = requests.delete('https://truereview.dev/api/videoentry/'+video.id,
-			 headers={'Authorization': 'Bearer '+access_token})
+			remove_video_entry(video.id)
 
-			if (response.status_code != 200):
-				return error_response(response.status_code, "error getting videos")
+			# if (response.status_code != 200):
+			# 	return error_response(response.status_code, "error getting videos")
 
 	if (request.method == 'POST'):
 		print("Getting " + title)
 		access_token = Admin.query.get(1).token
-		videoIDs_JSON = requests.post('https://truereview.dev/api/youtube_list/'+ title, headers={'Authorization': 'Bearer '+access_token})
-		videoIDs_JSON = videoIDs_JSON.json()
+		videoIDs_JSON = get_youtube_list(title, 5)
 
 		l_videoIDs = videoIDs_JSON['video_IDs']
 
@@ -92,15 +93,11 @@ def return_videos(title):
 
 			#Get the comment threads
 			print("getting comments")
-			response = requests.get('https://truereview.dev/api/comment_threads/'+video_id, headers={'Authorization': 'Bearer '+access_token})
-			if (response.status_code != requests.codes.ok):
-				return error_response(response.status_code, "error getting comment threads")
+			response = comment_threads(video_id, 100)
 
 			#Get the captions
 			print("getting captions")
-			response = requests.get('https://truereview.dev/api/video_caption/'+video_id, headers={'Authorization': 'Bearer '+access_token})
-			if (response.status_code != requests.codes.ok):
-				return error_response(response.status_code, "error getting video captions")
+			response = get_video_captions(video_id)
 
 	return(jsonify({"status": "success"}))
 
@@ -111,25 +108,7 @@ def edit_video_entry(videoid):
 	return_dict= {'status' : 'success'}
 
 	if (request.method == 'DELETE'):
-		video = Video.query.filter_by(id=videoid).first()
-		if (video is None):
-			return(error_response(404, 'video not found'))
-
-		description = Description.query.filter_by(video_id=videoid).first()
-		if (description is not None):
-			db.session.delete(description)
-
-		comments = Comment.query.filter_by(video_id=videoid).all()
-		if (comments is not None):
-			for comment in comments:
-				db.session.delete(comment)
-
-		caption = Caption.query.filter_by(video_id=videoid).first()
-		if (caption is not None):
-			db.session.delete(caption)
-
-		db.session.delete(video)
-		db.session.commit()
+		remove_video_entry(video_id)
 
 	if (request.method == 'POST'):
 		video = Video.query.filter_by(id=videoid).first()
@@ -152,17 +131,18 @@ def get_go_videos(title):
 		#for video in videos:
 			#TODO do score stuff here
 		#TODO make the titles have a return all option
-		response = requests.get('http://localhost:5000/api/titles/2014')
-		response_JSON = response.json()
+		response_JSON=get_movie_titles(2014)
 		failed_responses = 0
 		for title in response_JSON["titles"]:
 			return_dict={"title" : title}
 			return_dict["score"]="69"
 			return_dict["date"]="02/04/1999"
+			#This should be called naturally
 			response = requests.post('http://truereview.network/api/movies/p', json=return_dict)
 			if response.status_code != requests.codes.ok:
 				failed_responses += 1
 		return(jsonify({"failedResponses" : failed_responses}))
+
 
 
 
@@ -171,11 +151,19 @@ def get_go_videos(title):
 		#Do stuff here like compress score 
 	return_dict={"title" : title}
 
-	#TODO get an actual score
-	return_dict["score"]="69"
+	#Just does a straight average of the scores
+	score = 0
+	for video in videos:
+		score += video.score
+	score = score / 5
+	score = int(score)
+
+	return_dict["score"]=str(score)
 
 	#TODO get an actual date
+	#UPDATE: do we even need a date? Shouldn't this be in App side?
 	return_dict["date"]="02/04/1999"
+	response = requests.post('http://truereview.network/api/movies/p', json=return_dict)
 
 	return jsonify(return_dict)
 		

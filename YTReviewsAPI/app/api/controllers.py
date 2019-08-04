@@ -7,6 +7,8 @@ from videoCaptions import get_video_captions
 from app.api.auth import token_auth
 from flask_login import current_user, login_user
 
+from app.api.utils import get_movie_titles, get_youtube_list, get_comment_threads
+
 from flask import jsonify
 import pickle
 import logging
@@ -50,7 +52,7 @@ def start_server_controller(server_controller):
 
 @bp.route('/get_movie_titles_file')
 @token_auth.login_required
-def get_movie_titles():
+def get_movie_titles_file():
 	try:
 		START_YEAR = 2014
 		END_YEAR = 2019
@@ -95,95 +97,7 @@ def return_titles(year):
 	if (int(year) > LATEST_YEAR or int(year) < EARLIEST_YEAR):
 		return bad_request("Year must be between "+str(EARLIEST_YEAR)+" and "+str(LATEST_YEAR)+" inclusive.")
 
-	movieTitlesFile = open("movieTitles.txt", "r")
-	movie_titles_JSON = {"type":"movie titles"}
-	l_movie_titles = []
-
-	#Reading the movie titles specific to that year
-	counter_min = (int(year) - EARLIEST_YEAR) * 50
-	counter_max = counter_min + 50
-	counter = 0
-
-	for line in movieTitlesFile:
-		if (counter >= counter_min and counter < counter_max):
-			l_movie_titles.append(line[:len(line) - 1])
-
-		counter+=1
-
-	movie_titles_JSON["titles"] = l_movie_titles
-
-	return(jsonify(movie_titles_JSON))
-
-
-@bp.route('/youtube_list/<title>', methods=['POST'])
-@token_auth.login_required
-def get_list_of_videos(title):
-	with open('service1.pkl', 'rb') as input:
-		youtube = pickle.load(input)
-
-	MAX_RESULTS = 5
-	queryTerm =  title + ' movie review'
-	movieListJSON = search_videos_list(youtube, queryTerm, MAX_RESULTS)
-
-	l_video_id = []
-
-	for item in movieListJSON:
-		videoId = item["id"]["videoId"]
-		channelId = item["snippet"]["channelId"]
-		videoTitle = item["snippet"]["title"]
-		videoDescription = item["snippet"]["description"]
-		channelTitle = item["snippet"]["channelTitle"]
-		mediaTitle = title
-
-		stats_response = get_video_stats(youtube, videoId)
-
-		view_count = stats_response[0]["statistics"]["viewCount"]
-		like_count = stats_response[0]["statistics"]["likeCount"]
-		dislike_count = stats_response[0]["statistics"]["dislikeCount"]
-		favorite_count = stats_response[0]["statistics"]["favoriteCount"]
-		comment_count = stats_response[0]["statistics"]["commentCount"]
-
-		l_video_id.append(videoId)
-
-		video = Video(id=videoId, title=videoTitle, views=view_count, likeCount=like_count,
-			dislikeCount=dislike_count, channel_id=channelId, favoriteCount=favorite_count, commentCount=comment_count, mediaTitle=mediaTitle)
-
-		db.session.add(video)
-
-		#Add video description
-		description = Description(body=videoDescription, video_id=videoId)
-		db.session.add(description)
-		db.session.commit()
-
-	return_JSON = {"video_IDs" : l_video_id}
-
-	return(jsonify(return_JSON))
-
-@bp.route('/comment_threads/<video_id>', methods=['GET'])
-@token_auth.login_required
-def comment_threads(video_id):
-	with open('service1.pkl', 'rb') as input:
-		youtube = pickle.load(input)
-
-	MAX_COMMENT_THREADS = 100
-
-	print("Calling youtube for comments")
-	commentThreads = get_comment_threads(youtube, video_id, MAX_COMMENT_THREADS)
-
-	for item in commentThreads: 
-		parentId = item["id"]
-		topLevelComment = item["snippet"]["topLevelComment"]["snippet"]["textDisplay"]
-
-		comment = Comment(body=topLevelComment, video_id=video_id)
-
-		db.session.add(comment)
-
-	print("Adding comments to data base")
-	db.session.commit()
-
-	return_JSON = {"status" : 'success'}
-
-	return(jsonify(return_JSON))
+	return(jsonify(get_movie_titles(year,EARLIEST_YEAR)))
 
 
 @bp.route('/video_caption/<video_id>', methods=['GET'])

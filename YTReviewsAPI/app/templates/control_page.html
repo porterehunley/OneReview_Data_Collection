@@ -52,11 +52,17 @@
 								inputElement.setAttribute("type","text");
 								inputElement.setAttribute("class", "form-control");
 								inputElement.setAttribute("id","input-"+counter);
+								inputElement.value = element.score;
 								var labelElement = document.createElement('label');
 								labelElement.setAttribute("for","input-"+counter);
 								var titleNode = document.createTextNode(element.title);
+
+								var idNode = document.createElement('p');
+								idNode.appendChild(document.createTextNode(element.id));
+								idNode.setAttribute("id","videoId-"+counter);
 								labelElement.appendChild(titleNode);
 								formGroup.appendChild(labelElement);
+								formGroup.appendChild(idNode);
 								formGroup.appendChild(inputElement);
 								
 								formNode.appendChild(formGroup);
@@ -79,20 +85,17 @@
 					for (i = 0; i < 5; i++) {
 						var formElement = document.getElementById("form-group-"+i);
 						var videoTitle = formElement.firstChild.textContent;
-						console.log(videoTitle);
 						var videoScore = formElement.lastChild.value;
-						console.log(videoScore);
+						var videoId = document.getElementById("videoId-"+i).textContent;
 						videoData[i] = {
 							"title":videoTitle,
-							"score":videoScore
+							"score":videoScore,
+							"id":videoId
 						}
 					}
 					jsonObj["mediaTitle"] = mediaTitle;
 					jsonObj["videos"] = videoData;
 					var data = JSON.stringify(jsonObj);
-					console.log(videoData);
-					console.log(jsonObj);
-					console.log(data);
 					$.ajax({
 						type: 'POST',
 						url: '/api/web/videoview/title',

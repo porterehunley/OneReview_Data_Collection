@@ -2,4 +2,4 @@ from flask import Blueprint
 
 bp = Blueprint('api', __name__)
 
-from app.api import controllers, videos, errors, tokens, webservice
+from app.api import controllers, videos, errors, tokens, webservice, utils

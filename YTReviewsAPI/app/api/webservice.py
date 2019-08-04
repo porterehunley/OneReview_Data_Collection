@@ -1,5 +1,6 @@
 from app.api import bp
 from app import db
+from app import APP_URL
 from app.models import Video, Server_Controller, Admin
 from flask import jsonify
 from flask import request
@@ -8,7 +9,6 @@ from flask_login import current_user, login_user
 from app.api.auth import token_auth
 
 import requests
-
 
 @bp.route('/web/serverstatus', methods=['GET'])
 def return_server_status():
@@ -42,7 +42,7 @@ def return_server_status():
 @bp.route('/web/videostatus/<year>', methods=['GET'])
 def get_video_status(year):
 	access_token = Admin.query.get(1).token
-	response = requests.get('https://truereview.dev/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
+	response = requests.get(APP_URL + '/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
 	if (response.status_code == 404):
 		return(error_response(404, 'could not find titles'))
 
@@ -52,7 +52,7 @@ def get_video_status(year):
 
 	if (current_user.is_authenticated):
 		for title in response_JSON["titles"]:
-			response = requests.get('https://truereview.dev/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token})
+			response = requests.get(APP_URL +'/api/checkmedia/'+title, headers={'Authorization': 'Bearer '+ access_token})
 			if (response.status_code == 404):
 				l_status_tuples.append((title, "0"))
 			else:
@@ -100,7 +100,7 @@ def call_videos(videoid):
 	if (current_user.is_authenticated):
 		if (request.method == 'DELETE'):
 			access_token = Admin.query.get(1).first().token
-			response = requests.delete('https://truereview.dev/api/videoentry/'+videoid,
+			response = requests.delete(APP_URL + '/api/videoentry/'+videoid,
 				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
@@ -115,13 +115,13 @@ def call_mediaentry(title):
 	if (current_user.is_authenticated):
 		if (request.method == 'DELETE'):
 			access_token = Admin.query.get(1).token
-			response = requests.delete('https://truereview.dev/api/videos/'+title,
+			response = requests.delete(APP_URL +'/api/videos/'+title,
 				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
 		if (request.method == 'POST'):
 			access_token = Admin.query.get(1).token
-			response = requests.post('https://truereview.dev/api/videos/'+title,
+			response = requests.post(APP_URL+'/api/videos/'+title,
 				 headers={'Authorization': 'Bearer '+ access_token})
 			return(response.content, response.status_code, response.headers.items())
 
@@ -144,10 +144,16 @@ def get_video_views(title):
 
 		if (request.method == 'POST'):
 			data = request.get_json() or {}
+			videos = Video.query.filter_by(mediaTitle=data['mediaTitle']).all()
 			for videoView in data['videos']:
-				print(videoView['title'])
-				print(videoView['score'])
-				
+				for video in videos:
+					if (video.id == videoView['id']):
+						video.score = videoView['score']
+						db.session.add(video)
+						break
+			db.session.commit()
+			return(jsonify({"status":"success"}))
+
 
 	return(error_response(401, 'not logged in'))	
 
