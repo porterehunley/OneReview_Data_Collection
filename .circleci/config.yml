@@ -39,6 +39,18 @@ jobs:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
 
+      - run:
+          name: build wheel
+          command: |
+            echo "building wheel";
+            ython3 setup.py sdist bdist_wheel;
+
+      - store_artifacts:
+          path: ~/repo/dist
+          destination: youtube-build
+
+
+
       # run tests!
       # this example uses Django's built-in test-runner
       # other common Python testing frameworks include pytest and nose
