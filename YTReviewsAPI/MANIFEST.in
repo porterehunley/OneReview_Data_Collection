@@ -1,0 +1,11 @@
+graft YTReviewsAPI/app/static
+graft YTReviewsAPI/app/templates
+graft YTReviewsAPI/certs
+graft YTReviewsAPI/migrations
+include YTReviewsAPI/movieTitles.txt
+include YTReviewsAPI/service1.pkl
+include YTReviewsAPI/app/api/service1.pkl
+global-exclude *.pyc
+global-exclude *.icloud
+exclude YTReviewsAPI/venv
+exclude YTReviewsAPI/env
