@@ -1,0 +1,5 @@
+*.icloud
+*.pyc
+/YTReviewsAPI/build/*
+/YTReviewsAPI/venv/*
+/YTReviewsAPI/env/*
