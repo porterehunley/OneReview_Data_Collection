@@ -1,0 +1,46 @@
+---
+#NOTE: This assumes that the database is already configured!
+- hosts: webservers
+  vars:
+    http_port: 80
+  remote_user: root
+  tasks:
+  # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
+  - name: Install python 
+    apt:
+      name: python3
+      update_cache: yes
+
+  #TODO: Configure supervisor
+  - name: Install supervisor
+    apt:
+      name: supervisor
+
+  - name: Install NginX
+    apt: 
+      name: nginx 
+
+  - name: Install git
+    apt: 
+      name: git
+
+  - name: Install pip
+    apt:
+      name: python3-pip
+
+  - name: Kill gunicorn processes if available 
+    command: killall gunicorn
+    ignore_errors: yes
+  
+  - name: Install gunicorn
+    pip:
+      name: gunicorn
+
+  - name: Install PyMySql
+    pip: 
+      name: pymysql 
+
+  
+
+
+

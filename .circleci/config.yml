@@ -1,7 +1,4 @@
 # Python CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-python/ for more details
-#
 version: 2
 jobs:
   build:
@@ -34,10 +31,21 @@ jobs:
             . venv/bin/activate
             pip install -r requirements.txt
 
+      - run:
+          name: install twine
+          command: pip install twine
+
       - save_cache:
           paths:
             - ./venv
           key: v1-dependencies-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: init .pypirc
+          command: |
+            echo -e "[pypi]" >> ~/.pypirc
+            echo -e "username = porterhunley" >> ~/.pypirc
+            echo -e "password = $PYPI_PASSWORD" >> ~/.pypirc
 
       - run:
           name: build wheel
@@ -45,17 +53,17 @@ jobs:
             echo "building wheel";
             python3 ~/repo/YTReviewsAPI/setup.py sdist bdist_wheel;
 
+      - run: 
+          name: upload to pypi
+          command: twine upload dist/*
+
       - store_artifacts:
           path: ~/repo/dist
           destination: youtube-build
 
 
 
-      # run tests!
-      # this example uses Django's built-in test-runner
-      # other common Python testing frameworks include pytest and nose
-      # https://pytest.org
-      # https://nose.readthedocs.io
+      # TODO: Make some tests
       # - run:
       #     name: run tests
       #     command: |
