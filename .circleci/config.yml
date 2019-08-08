@@ -33,7 +33,9 @@ jobs:
 
       - run:
           name: install twine
-          command: pip install twine
+          command: |
+            . venv/bin/activate
+            pip install twine
 
       - save_cache:
           paths:
