@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 VERSION = "0.1.1"
 
 setup(
-    name='TYReviewsAPI',
+    name='YTReviewsAPI',
     version=VERSION,
     author="Porter Hunley",
     author_email="porterhunley@gatech.edu",

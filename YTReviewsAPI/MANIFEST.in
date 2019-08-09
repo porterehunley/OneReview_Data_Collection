@@ -5,6 +5,7 @@ graft YTReviewsAPI/migrations
 include YTReviewsAPI/movieTitles.txt
 include YTReviewsAPI/service1.pkl
 include YTReviewsAPI/app/api/service1.pkl
+include YTReviewsAPI/.env
 global-exclude *.pyc
 global-exclude *.icloud
 exclude YTReviewsAPI/venv
