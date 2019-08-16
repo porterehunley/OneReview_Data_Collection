@@ -1,9 +1,12 @@
 ---
 #NOTE: This assumes that the database is already configured!
-- hosts: webservers
+- hosts: all
   vars:
     http_port: 80
-  remote_user: root
+  remote_user: ubuntu
+  become: True
+  vars_files:
+    - vars.yml
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
   - name: Install python 
@@ -24,9 +27,18 @@
     apt: 
       name: git
 
-  - name: Install pip
+  - name: Install pip3
     apt:
       name: python3-pip
+
+  - name: Install pip
+    apt:
+      name: python-pip
+
+  - name: Upgrade pip
+    pip: 
+      name: pip
+      extra_args: --upgrade
 
   - name: Kill gunicorn processes if available 
     command: killall gunicorn
@@ -40,7 +52,58 @@
     pip: 
       name: pymysql 
 
-  
+  - name: Install application 
+    pip:
+      name: YTReviewsAPI
+      executable: pip3
+
+  - name: Creating deployment directory
+    file:
+      path: /home/ubuntu/deployment
+      state: directory
+      owner: ubuntu
+
+  - name: Moving requirements.txt for application 
+    copy: 
+      src: requirements.txt
+      dest: /home/ubuntu/deployment/requirements.txt
+
+  - name: Install requirements
+    pip: 
+      name: /home/ubuntu/deployment/requirements.txt
+      extra_args: -r
+
+  - name: Copying static files
+    copy:
+      src: "{{ local_static_path }}"
+      dest: /home/ubuntu/deployment/static
+      directory_mode: True
+      owner: ubuntu
+      group: ubuntu
+      mode: u=rwx,g=rwx,o=rwx
+
+  - name: Copying NginX Configuration
+    template:
+      src: templates/nginx.j2
+      dest: /etc/nginx/sites-enabled/YTReviewsAPI
+
+  - name: Restart NginX
+    service:
+      name: nginx
+      state: restarted
+
+  - name: Start application
+    gunicorn:
+      app: 'YTReviewsAPI'
+
+
+
+
+
+
+
+
+
 
 
 

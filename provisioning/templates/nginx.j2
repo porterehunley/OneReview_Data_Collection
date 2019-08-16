@@ -35,7 +35,7 @@ server {
 
     location /static {
         # handle static files directly, without forwarding to the application
-        alias /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/app/static;
+        alias {{ remote_static_path }};
         expires 30d;
     }
 }

@@ -4,3 +4,5 @@
 /YTReviewsAPI/venv/*
 /YTReviewsAPI/env/*
 /YTReviewsAPI/dist/*
+/provisioning/vars.yml
+
