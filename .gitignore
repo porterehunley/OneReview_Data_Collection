@@ -5,4 +5,4 @@
 /YTReviewsAPI/env/*
 /YTReviewsAPI/dist/*
 /provisioning/vars.yml
-
+*.db
