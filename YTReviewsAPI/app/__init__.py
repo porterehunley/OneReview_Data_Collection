@@ -12,7 +12,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 login = LoginManager(app)
 login.login_view = 'login'
-APP_URL = os.environ.get('APP_URL') or 'http://localhost:5000'
+APP_URL = Config.APP_URL
 
 from app.api import bp as api_bp
 app.register_blueprint(api_bp, url_prefix='/api')
