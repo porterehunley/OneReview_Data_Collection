@@ -7,4 +7,5 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
     APP_URL = os.environ.get('APP_URL') or 'http://localhost:5000'
+    print(os.environ.get('APP_URL'))
     
