@@ -51,6 +51,11 @@
       group: ubuntu
     sudo: True
 
+  - name: configuring system environment
+    template:
+      src: templates/config.j2
+      dest: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/config.py
+
   - name: Copying NginX Configuration
     template:
       src: templates/nginx.j2

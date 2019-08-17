@@ -5,6 +5,7 @@ import pickle
 
 
 def get_movie_titles(year, EARLIEST_YEAR):
+	print("getting file")
 	movieTitlesFile = open("movieTitles.txt", "r")
 	movie_titles_JSON = {"type":"movie titles"}
 	l_movie_titles = []
@@ -13,7 +14,7 @@ def get_movie_titles(year, EARLIEST_YEAR):
 	counter_min = (int(year) - EARLIEST_YEAR) * 50
 	counter_max = counter_min + 50
 	counter = 0
-
+	print("reading file")
 	for line in movieTitlesFile:
 		if (counter >= counter_min and counter < counter_max):
 			l_movie_titles.append(line[:len(line) - 1])

@@ -7,6 +7,7 @@ from flask import request
 from app.api.errors import error_response
 from flask_login import current_user, login_user
 from app.api.auth import token_auth
+from app.api.utils import get_movie_titles
 
 import requests
 
@@ -42,6 +43,7 @@ def return_server_status():
 @bp.route('/web/videostatus/<year>', methods=['GET'])
 def get_video_status(year):
 	access_token = Admin.query.get(1).token
+	print(APP_URL + '/api/titles/' + year)
 	response = requests.get(APP_URL + '/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
 	if (response.status_code == 404):
 		return(error_response(404, 'could not find titles'))

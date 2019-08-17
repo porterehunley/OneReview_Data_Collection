@@ -93,6 +93,7 @@ def return_titles(year):
 	EARLIEST_YEAR = 2014
 	LATEST_YEAR = 2018
 	MOVIES_PER_YEAR = 50
+	print(year)
 
 	if (int(year) > LATEST_YEAR or int(year) < EARLIEST_YEAR):
 		return bad_request("Year must be between "+str(EARLIEST_YEAR)+" and "+str(LATEST_YEAR)+" inclusive.")
