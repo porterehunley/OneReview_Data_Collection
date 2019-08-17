@@ -10,15 +10,17 @@
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
   - name: Manually kill gunicorn processes with supervisor
-    command: supervisorctl stop microblog
+    command: supervisorctl stop ytreviewsapi
     ignore_errors: yes
     sudo: True
 
   - name: Manually pull recent changes
-    git:
-      repo: git@github.com:porterehunley/OneReview_Data_Collection.git
-      dest: /home/ubuntu/
-      accept_hostkey: yes
+    command: git pull
+    chdir: /home/ubuntu/OneReview_Data_Collection
+
+  - name: Manually upgrade database
+    command: /home/ubuntu/venv/bin/flask db upgrade
+    chdir: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI
 
   - name: Creating deployment directory
     file:
