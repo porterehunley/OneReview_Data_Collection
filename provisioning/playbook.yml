@@ -4,58 +4,21 @@
   vars:
     http_port: 80
   remote_user: ubuntu
-  become: True
+  # become: True
   vars_files:
     - vars.yml
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
-  - name: Install python 
-    apt:
-      name: python3
-      update_cache: yes
-
-  #TODO: Configure supervisor
-  - name: Install supervisor
-    apt:
-      name: supervisor
-
-  - name: Install NginX
-    apt: 
-      name: nginx 
-
-  - name: Install git
-    apt: 
-      name: git
-
-  - name: Install pip3
-    apt:
-      name: python3-pip
-
-  - name: Install pip
-    apt:
-      name: python-pip
-
-  - name: Upgrade pip
-    pip: 
-      name: pip
-      extra_args: --upgrade
-
   - name: Kill gunicorn processes if available 
     command: killall gunicorn
     ignore_errors: yes
-  
-  - name: Install gunicorn
-    pip:
-      name: gunicorn
+    sudo: True
 
-  - name: Install PyMySql
-    pip: 
-      name: pymysql 
-
-  - name: Install application 
-    pip:
-      name: YTReviewsAPI
-      executable: pip3
+  # - name: Install application 
+  #   pip:
+  #     name: YTReviewsAPI
+  #     virtualenv: /home/ubuntu/venv
+  #     virtualenv_python: python3.5
 
   - name: Creating deployment directory
     file:
@@ -72,6 +35,8 @@
     pip: 
       name: /home/ubuntu/deployment/requirements.txt
       extra_args: -r
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.5
 
   - name: Copying static files
     copy:
@@ -80,17 +45,19 @@
       directory_mode: True
       owner: ubuntu
       group: ubuntu
-      mode: u=rwx,g=rwx,o=rwx
+    sudo: True
 
   - name: Copying NginX Configuration
     template:
       src: templates/nginx.j2
       dest: /etc/nginx/sites-enabled/YTReviewsAPI
+    sudo: True
 
   - name: Restart NginX
     service:
       name: nginx
       state: restarted
+    sudo: True
 
   - name: Start application
     gunicorn:
