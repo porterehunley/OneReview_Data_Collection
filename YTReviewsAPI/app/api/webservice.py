@@ -20,7 +20,7 @@ def return_server_status():
 		return_dict['status'] = 'No collection running'
 		return_dict['CurrentMovie'] = 'N/A'
 		return_dict['isRunning'] = False
-		return_dict['currentYear'] = 'N/A'
+		return_dict['currentYear'] = 2014
 		return(jsonify(return_dict))
 
 	return_dict['CurrentMovie'] = server_controller.CURRENT_MOVIE
@@ -36,8 +36,6 @@ def return_server_status():
 		return_dict['currentYear'] = 2017
 	if (server_controller.CURRENT_MOVIE // 50  == 4):
 		return_dict['currentYear'] = 2018
-	if (server_controller.CURRENT_MOVIE == 'N/A'):
-		return_dict['currentYear'] = 2014
 
 	return(jsonify(return_dict))
 

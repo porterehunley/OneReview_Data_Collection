@@ -16,11 +16,13 @@
 
   - name: Manually pull recent changes
     command: git pull
-    chdir: /home/ubuntu/OneReview_Data_Collection
+    args:
+      chdir: /home/ubuntu/OneReview_Data_Collection
 
-  - name: Manually upgrade database
-    command: /home/ubuntu/venv/bin/flask db upgrade
-    chdir: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI
+  # - name: Manually upgrade database
+  #   command: /home/ubuntu/venv/bin/flask db upgrade
+  #   args:
+  #     chdir: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI
 
   - name: Creating deployment directory
     file:
