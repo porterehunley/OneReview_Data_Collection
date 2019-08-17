@@ -18,7 +18,7 @@ def return_server_status():
 
 	if (server_controller == None):
 		return_dict['status'] = 'No collection running'
-		return_dict['CurrentMovie'] = 'N/A'
+		return_dict['CurrentMovie'] = 0
 		return_dict['isRunning'] = False
 		return_dict['currentYear'] = 2014
 		return(jsonify(return_dict))
