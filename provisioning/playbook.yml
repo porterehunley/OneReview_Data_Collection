@@ -9,16 +9,16 @@
     - vars.yml
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
-  - name: Kill gunicorn processes if available 
-    command: killall gunicorn
+  - name: Manually kill gunicorn processes with supervisor
+    command: supervisorctl stop microblog
     ignore_errors: yes
     sudo: True
 
-  # - name: Install application 
-  #   pip:
-  #     name: YTReviewsAPI
-  #     virtualenv: /home/ubuntu/venv
-  #     virtualenv_python: python3.5
+  - name: Manually pull recent changes
+    git:
+      repo: git@github.com:porterehunley/OneReview_Data_Collection.git
+      dest: /home/ubuntu/
+      accept_hostkey: yes
 
   - name: Creating deployment directory
     file:
@@ -59,9 +59,19 @@
       state: restarted
     sudo: True
 
-  - name: Start application
-    gunicorn:
-      app: 'YTReviewsAPI'
+  - name: Copying Supervisor configuration 
+    template:
+      src: templates/supervisor.j2
+      dest: /etc/supervisor/conf.d/ytreviewsapi.conf
+    sudo: True
+
+  - name: Manually reload supervisor
+    command: supervisorctl reload
+    sudo: True
+
+  # - name: Start application
+  #   gunicorn:
+  #     app: 'YTReviewsAPI'
 
 
 

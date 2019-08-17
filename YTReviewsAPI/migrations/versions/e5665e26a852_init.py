@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 6c8049673b57
+Revision ID: e5665e26a852
 Revises: 
-Create Date: 2019-07-08 22:13:45.006379
+Create Date: 2019-08-16 20:53:32.618834
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6c8049673b57'
+revision = 'e5665e26a852'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -49,6 +49,7 @@ def upgrade():
     sa.Column('favoriteCount', sa.Integer(), nullable=True),
     sa.Column('commentCount', sa.Integer(), nullable=True),
     sa.Column('channel_id', sa.String(length=30), nullable=True),
+    sa.Column('score', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_video_title'), 'video', ['title'], unique=False)
