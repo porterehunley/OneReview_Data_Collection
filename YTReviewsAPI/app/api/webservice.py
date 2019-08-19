@@ -154,8 +154,7 @@ def get_video_views(title):
 						db.session.add(video)
 						break
 			db.session.commit()
-			response = requests.post(APP_URL+'/api/govideos/'+title,
-				 headers={'Authorization': 'Bearer '+ access_token})
+			response = requests.post(APP_URL+'/api/govideos/'+title)
 
 			return(jsonify({"status":"success"}))
 
