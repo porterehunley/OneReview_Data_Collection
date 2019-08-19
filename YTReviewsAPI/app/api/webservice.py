@@ -90,7 +90,7 @@ def check_auth():
 def check_control_auth(maxVideos):
 
 	if (current_user.is_authenticated):
-		response = requests.get('https://truereview.dev/api/startservercontroller/'+ maxVideos,
+		response = requests.get(APP_URL + "/api/startservercontroller/"+ maxVideos,
 		  headers={'Authorization': 'Bearer '+ current_user.token})
 		return(response.content, response.status_code, response.headers.items())
 
@@ -154,6 +154,9 @@ def get_video_views(title):
 						db.session.add(video)
 						break
 			db.session.commit()
+			response = requests.post(APP_URL+'/api/govideos/'+title,
+				 headers={'Authorization': 'Bearer '+ access_token})
+
 			return(jsonify({"status":"success"}))
 
 

@@ -3,7 +3,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = mysql+pymysql://ytreviewsapi:a@localhost:3306/ytreviewsapi
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://ytreviewsapi:a@localhost:3306/ytreviewsapi'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
-    APP_URL = 'https://truereview.dev'  
+    APP_URL = 'http://127.0.0.1:5000'

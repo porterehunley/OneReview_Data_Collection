@@ -14,6 +14,11 @@
     ignore_errors: yes
     sudo: True
 
+  - name: Manually stashing any local changes
+    command: git stash
+    args:
+      chdir: /home/ubuntu/OneReview_Data_Collection
+
   - name: Manually pull recent changes
     command: git pull
     args:
