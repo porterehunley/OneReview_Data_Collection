@@ -91,13 +91,15 @@ def return_videos(title):
 
 		for video_id in l_videoIDs:
 
-			#Get the comment threads
-			print("getting comments")
-			response = comment_threads(video_id, 100)
+			# #Get the comment threads
+			# print("getting comments")
+			# response = comment_threads(video_id, 100)
 
-			#Get the captions
-			print("getting captions")
-			response = get_video_captions(video_id)
+			# #Get the captions
+			# print("getting captions")
+			# response = get_video_captions(video_id)
+
+			print(video_id)
 
 	return(jsonify({"status": "success"}))
 
