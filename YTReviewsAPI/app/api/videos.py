@@ -133,11 +133,11 @@ def get_go_videos(title):
 		#for video in videos:
 			#TODO do score stuff here
 		#TODO make the titles have a return all option
-		response_JSON=get_movie_titles(2014)
+		response_JSON=get_movie_titles(2014, 2014)
 		failed_responses = 0
 		for title in response_JSON["titles"]:
 			return_dict={"title" : title}
-			return_dict["score"]= "69"
+			return_dict["score"]= "75"
 			return_dict["date"]="02/04/1999"
 			#This should be called naturally
 			response = requests.post('http://truereview.network/api/movies/p', json=return_dict)
