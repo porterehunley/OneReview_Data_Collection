@@ -125,7 +125,7 @@ def edit_video_entry(videoid):
 	return(jsonify(return_dict))
 
 #This route is for the go backend to call to get the bare minimum data needed to display
-@bp.route('/govideos/<title>', methods=['GET'])
+@bp.route('/govideos/<title>', methods=['GET', 'POST'])
 # @token_auth.login_required
 def get_go_videos(title):
 	if title == "all":
