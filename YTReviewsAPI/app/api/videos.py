@@ -155,9 +155,9 @@ def get_go_videos(title):
 
 	#Just does a straight average of the scores
 	score = 0
-	for video in videos:
-		score += video.score
-	score = score / 5
+	valid_videos = [video.score for video in videos if video.score != -1]
+	score = sum(valid_videos)
+	score = score / len(valid_videos)
 	score = int(score)
 
 	return_dict["score"]=str(score)
