@@ -125,15 +125,15 @@ def edit_video_entry(videoid):
 	return(jsonify(return_dict))
 
 #This route is for the go backend to call to get the bare minimum data needed to display
-@bp.route('/govideos/<title>', methods=['GET'])
+@bp.route('/govideos/<title>/<year>', methods=['GET'])
 # @token_auth.login_required
-def get_go_videos(title):
+def get_go_videos(title,year=None):
 	if title == "all":
 		#videos = Video.query.all()
 		#for video in videos:
 			#TODO do score stuff here
 		#TODO make the titles have a return all option
-		response_JSON=get_movie_titles(2014, 2014)
+		response_JSON=get_movie_titles(year, 2014)
 		failed_responses = 0
 		for title in response_JSON["titles"]:
 			return_dict={"title" : title}
