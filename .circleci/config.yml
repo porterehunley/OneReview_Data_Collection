@@ -48,12 +48,6 @@ jobs:
             echo "building wheel";
             python3 ~/repo/YTReviewsAPI/setup.py sdist bdist_wheel;
 
-      - run: 
-          name: upload to pypi
-          command: |
-            . venv/bin/activate
-            twine upload dist/*
-
       - store_artifacts:
           path: ~/repo/dist
           destination: youtube-build

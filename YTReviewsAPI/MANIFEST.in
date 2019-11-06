@@ -5,8 +5,6 @@ graft migrations
 include movieTitles.txt
 include service1.pkl
 include app/api/service1.pkl
-include videoCaptions.py
-include YTReviewsAPI.py
 include .env
 global-exclude *.pyc
 global-exclude *.icloud

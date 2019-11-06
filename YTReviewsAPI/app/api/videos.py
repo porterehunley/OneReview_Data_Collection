@@ -145,9 +145,6 @@ def get_go_videos(title,year=None):
 				failed_responses += 1
 		return(jsonify({"failedResponses" : failed_responses}))
 
-
-
-
 	videos = Video.query.filter_by(mediaTitle=title).all()
 	#for video in videos:
 		#Do stuff here like compress score 
