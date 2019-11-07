@@ -83,25 +83,17 @@
       chdir: /home/ubuntu/deployment
     ignore_errors: yes
 
-  - name: Fetching latest build
-    command: curl https://circleci.com/api/v1.1/project/github/porterehunley/OneReview_Data_Collection/latest/artifacts?circle-token=41006e815e0c64409e76a2fcbfe66f6335d70b90
-    with_items:
-      - grep -o 'https://[^"]*'
-      - wget -v -i
-    args: 
+  - name: Installing application
+    pip: 
+      name: YTReviewsAPI
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.5
       chdir: /home/ubuntu/deployment 
 
   - name: Moving requirements.txt for application 
     copy: 
       src: requirements.txt
       dest: /home/ubuntu/deployment/requirements.txt
-
-  - name: Installing application
-    pip: 
-      name: YTReviewsAPI-0.1.3-py3-none-any.whl
-      virtualenv: /home/ubuntu/venv
-      virtualenv_python: python3.5
-      chdir: /home/ubuntu/deployment 
 
 
   - name: Install requirements
