@@ -45,7 +45,7 @@ jobs:
       - run:
           name: build wheel
           command: |
-            cd ~/repo/YTReviewsAPI/setup.py
+            cd ~/repo/YTReviewsAPI
             python3  bdist bdist_wheel
 
       - store_artifacts:
