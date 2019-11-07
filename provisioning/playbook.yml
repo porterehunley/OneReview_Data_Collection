@@ -88,6 +88,7 @@
       name: YTReviewsAPI
       virtualenv: /home/ubuntu/venv
       virtualenv_python: python3.5
+      extra_args: --no-cache-dir
       chdir: /home/ubuntu/deployment 
 
   - name: Moving requirements.txt for application 

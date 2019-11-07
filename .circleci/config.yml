@@ -39,7 +39,7 @@ jobs:
           name: build wheel
           command: |
             cd ~/repo/YTReviewsAPI
-            python3 setup.py bdist bdist_wheel
+            python3 setup.py bdist_wheel
 
   release:
     docker:
