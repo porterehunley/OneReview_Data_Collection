@@ -9,20 +9,62 @@
     - vars.yml
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
+  - name: Install python 
+    apt:
+      name: python3
+      update_cache: yes
+    sudo: True
+
+  - name: Install python-venv
+    apt:
+      name: python3-venv
+    sudo: True
+
+  #TODO: Configure supervisor
+  - name: Install supervisor
+    apt:
+      name: supervisor
+    sudo: True
+
+  - name: Install NginX
+    apt: 
+      name: nginx
+    sudo: True 
+
+  - name: Install git
+    apt: 
+      name: git
+    sudo: True
+
+  - name: Manually create the virtualenv with python
+    command: python3 -m venv /home/ubuntu/venv
+
+  - name: Install gunicorn
+    pip:
+      name: gunicorn
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.5
+
+  - name: Install pymysql
+    pip: 
+      name: pymysql
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.5
+
   - name: Manually kill gunicorn processes with supervisor
     command: supervisorctl stop ytreviewsapi
     ignore_errors: yes
     sudo: True
 
-  - name: Manually stashing any local changes
-    command: git stash
-    args:
-      chdir: /home/ubuntu/OneReview_Data_Collection
+  # - name: Manually stashing any local changes
+  #   command: git stash
+  #   args:
+  #     chdir: /home/ubuntu/OneReview_Data_Collection
 
-  - name: Manually pull recent changes
-    command: git pull
-    args:
-      chdir: /home/ubuntu/OneReview_Data_Collection
+  # - name: Manually pull recent changes
+  #   command: git pull
+  #   args:
+  #     chdir: /home/ubuntu/OneReview_Data_Collection
 
   # - name: Manually upgrade database
   #   command: /home/ubuntu/venv/bin/flask db upgrade
@@ -35,10 +77,32 @@
       state: directory
       owner: ubuntu
 
+  - name: Clearing deployment directory
+    command: rm -rf *
+    args:
+      chdir: /home/ubuntu/deployment
+    ignore_errors: yes
+
+  - name: Fetching latest build
+    command: curl https://circleci.com/api/v1.1/project/github/porterehunley/OneReview_Data_Collection/latest/artifacts?circle-token=41006e815e0c64409e76a2fcbfe66f6335d70b90
+    with_items:
+      - grep -o 'https://[^"]*'
+      - wget -v -i
+    args: 
+      chdir: /home/ubuntu/deployment 
+
   - name: Moving requirements.txt for application 
     copy: 
       src: requirements.txt
       dest: /home/ubuntu/deployment/requirements.txt
+
+  - name: Installing application
+    pip: 
+      name: YTReviewsAPI-0.1.3-py3-none-any.whl
+      virtualenv: /home/ubuntu/venv
+      virtualenv_python: python3.5
+      chdir: /home/ubuntu/deployment 
+
 
   - name: Install requirements
     pip: 
@@ -47,19 +111,19 @@
       virtualenv: /home/ubuntu/venv
       virtualenv_python: python3.5
 
-  - name: Copying static files
-    copy:
-      src: "{{ local_static_path }}"
-      dest: /home/ubuntu/deployment/static
-      directory_mode: True
-      owner: ubuntu
-      group: ubuntu
-    sudo: True
+  # - name: Copying static files
+  #   copy:
+  #     src: "{{ local_static_path }}"
+  #     dest: /home/ubuntu/deployment/static
+  #     directory_mode: True
+  #     owner: ubuntu
+  #     group: ubuntu
+  #   sudo: True
 
-  - name: configuring system environment
-    template:
-      src: templates/config.j2
-      dest: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/config.py
+  # - name: configuring system environment
+  #   template:
+  #     src: templates/config.j2
+  #     dest: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/config.py
 
   - name: Copying NginX Configuration
     template:
@@ -85,7 +149,7 @@
 
   # - name: Start application
   #   gunicorn:
-  #     app: 'YTReviewsAPI'
+  #     app: 'app'
 
 
 
