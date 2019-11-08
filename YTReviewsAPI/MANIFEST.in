@@ -2,8 +2,8 @@ graft app/static
 graft app/templates
 graft certs
 graft migrations
-include movieTitles.txt
-include service1.pkl
+include app/movieTitles.txt
+include app/service1.pkl
 include app/api/service1.pkl
 include .env
 global-exclude *.pyc
