@@ -36,6 +36,12 @@
       name: git
     sudo: True
 
+  - name: Clearing home directory
+    command: rm -r *
+    args:
+      chdir: /home/ubuntu/
+    ignore_errors: yes
+
   - name: Manually create the virtualenv with python
     command: python3 -m venv /home/ubuntu/venv
 
@@ -76,12 +82,6 @@
       path: /home/ubuntu/deployment
       state: directory
       owner: ubuntu
-
-  - name: Clearing deployment directory
-    command: rm -rf *
-    args:
-      chdir: /home/ubuntu/deployment
-    ignore_errors: yes
 
   - name: Installing application
     pip: 

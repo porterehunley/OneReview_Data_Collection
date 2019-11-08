@@ -7,7 +7,7 @@ from app.api.errors import error_response
 from app.api.auth import token_auth
 from app.api.controllers import return_titles
 from app.api.utils import get_movie_titles, get_youtube_list, comment_threads, remove_video_entry
-from videoCaptions import get_video_captions
+from app.videoCaptions import get_video_captions
 
 import requests
 import pickle
