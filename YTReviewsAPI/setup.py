@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 #The packages gets all the relevant python packages, for non python files, you need to add
 # them into the manifest.in
-VERSION = "0.1.7"
+VERSION = "0.1.8"
 
 setup(
     name='YTReviewsAPI',
