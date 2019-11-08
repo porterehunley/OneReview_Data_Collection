@@ -1,5 +1,6 @@
 ---
 #NOTE: This assumes that the database is already configured!
+#NOTE: Certificate keys should be copied over ahead of time
 - hosts: all
   vars:
     http_port: 80
@@ -96,7 +97,6 @@
     copy: 
       src: requirements.txt
       dest: /home/ubuntu/deployment/requirements.txt
-
 
   - name: Install requirements
     pip: 
