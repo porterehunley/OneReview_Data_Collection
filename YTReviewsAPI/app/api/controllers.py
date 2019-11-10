@@ -3,7 +3,7 @@ from app import db
 from app.api.errors import bad_request
 from app.models import Video, Description, Comment, Caption, Server_Controller, Admin
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
-from app.videoCaptions import get_video_captions
+from videoCaptions import get_video_captions
 from app.api.auth import token_auth
 from flask_login import current_user, login_user
 

@@ -1,6 +1,5 @@
 ---
 #NOTE: This assumes that the database is already configured!
-#NOTE: Certificate keys should be copied over ahead of time
 - hosts: all
   vars:
     http_port: 80
@@ -10,68 +9,20 @@
     - vars.yml
   tasks:
   # Ignoring errors because gunicorn could be down or not isntalled and it will fail as it should
-  - name: Install python 
-    apt:
-      name: python3
-      update_cache: yes
-    sudo: True
-
-  - name: Install python-venv
-    apt:
-      name: python3-venv
-    sudo: True
-
-  #TODO: Configure supervisor
-  - name: Install supervisor
-    apt:
-      name: supervisor
-    sudo: True
-
-  - name: Install NginX
-    apt: 
-      name: nginx
-    sudo: True 
-
-  - name: Install git
-    apt: 
-      name: git
-    sudo: True
-
-  - name: Clearing home directory
-    command: rm -r *
-    args:
-      chdir: /home/ubuntu/
-    ignore_errors: yes
-
-  - name: Manually create the virtualenv with python
-    command: python3 -m venv /home/ubuntu/venv
-
-  - name: Install gunicorn
-    pip:
-      name: gunicorn
-      virtualenv: /home/ubuntu/venv
-      virtualenv_python: python3.5
-
-  - name: Install pymysql
-    pip: 
-      name: pymysql
-      virtualenv: /home/ubuntu/venv
-      virtualenv_python: python3.5
-
   - name: Manually kill gunicorn processes with supervisor
     command: supervisorctl stop ytreviewsapi
     ignore_errors: yes
     sudo: True
 
-  # - name: Manually stashing any local changes
-  #   command: git stash
-  #   args:
-  #     chdir: /home/ubuntu/OneReview_Data_Collection
+  - name: Manually stashing any local changes
+    command: git stash
+    args:
+      chdir: /home/ubuntu/OneReview_Data_Collection
 
-  # - name: Manually pull recent changes
-  #   command: git pull
-  #   args:
-  #     chdir: /home/ubuntu/OneReview_Data_Collection
+  - name: Manually pull recent changes
+    command: git pull
+    args:
+      chdir: /home/ubuntu/OneReview_Data_Collection
 
   # - name: Manually upgrade database
   #   command: /home/ubuntu/venv/bin/flask db upgrade
@@ -83,15 +34,6 @@
       path: /home/ubuntu/deployment
       state: directory
       owner: ubuntu
-
-  - name: Installing application
-    pip: 
-      name: YTReviewsAPI
-      virtualenv: /home/ubuntu/venv
-      virtualenv_python: python3.5
-      extra_args: --no-cache-dir 
-      chdir: /home/ubuntu/deployment 
-      state: forcereinstall
 
   - name: Moving requirements.txt for application 
     copy: 
@@ -105,19 +47,19 @@
       virtualenv: /home/ubuntu/venv
       virtualenv_python: python3.5
 
-  # - name: Copying static files
-  #   copy:
-  #     src: "{{ local_static_path }}"
-  #     dest: /home/ubuntu/deployment/static
-  #     directory_mode: True
-  #     owner: ubuntu
-  #     group: ubuntu
-  #   sudo: True
+  - name: Copying static files
+    copy:
+      src: "{{ local_static_path }}"
+      dest: /home/ubuntu/deployment/static
+      directory_mode: True
+      owner: ubuntu
+      group: ubuntu
+    sudo: True
 
-  # - name: configuring system environment
-  #   template:
-  #     src: templates/config.j2
-  #     dest: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/config.py
+  - name: configuring system environment
+    template:
+      src: templates/config.j2
+      dest: /home/ubuntu/OneReview_Data_Collection/YTReviewsAPI/config.py
 
   - name: Copying NginX Configuration
     template:
@@ -143,7 +85,7 @@
 
   # - name: Start application
   #   gunicorn:
-  #     app: 'app'
+  #     app: 'YTReviewsAPI'
 
 
 
