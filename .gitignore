@@ -6,3 +6,7 @@
 /YTReviewsAPI/dist/*
 /provisioning/vars.yml
 *.db
+.DS_Store
+*.env
+/YTReviewsAPI/YTReviewsAPI.egg-info/*
+/YTReviewsAPI/certs/*

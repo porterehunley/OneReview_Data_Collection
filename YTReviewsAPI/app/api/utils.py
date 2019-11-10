@@ -1,12 +1,17 @@
 from app import db
+from app import basedir
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
 from app.models import Video, Description, Comment, Caption, Server_Controller, Admin
 import pickle
+import os
+
+
 
 
 def get_movie_titles(year, EARLIEST_YEAR):
 	print("getting file")
-	movieTitlesFile = open("movieTitles.txt", "r")
+	print("base directory: ", basedir)
+	movieTitlesFile = open(basedir + "/movieTitles.txt", "r")
 	movie_titles_JSON = {"type":"movie titles"}
 	l_movie_titles = []
 

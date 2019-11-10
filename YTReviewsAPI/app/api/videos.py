@@ -7,7 +7,7 @@ from app.api.errors import error_response
 from app.api.auth import token_auth
 from app.api.controllers import return_titles
 from app.api.utils import get_movie_titles, get_youtube_list, comment_threads, remove_video_entry
-from videoCaptions import get_video_captions
+from app.videoCaptions import get_video_captions
 
 import requests
 import pickle
@@ -144,9 +144,6 @@ def get_go_videos(title,year=None):
 			if response.status_code != requests.codes.ok:
 				failed_responses += 1
 		return(jsonify({"failedResponses" : failed_responses}))
-
-
-
 
 	videos = Video.query.filter_by(mediaTitle=title).all()
 	#for video in videos:

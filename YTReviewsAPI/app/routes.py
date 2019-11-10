@@ -6,7 +6,7 @@ from flask import Response
 from flask import jsonify
 from flask import render_template, redirect, url_for
 from app.api.auth import basic_auth
-from videoCaptions import get_video_captions
+from .videoCaptions import get_video_captions
 from flask_login import login_required
 
 import requests 

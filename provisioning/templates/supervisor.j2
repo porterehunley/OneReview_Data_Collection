@@ -1,6 +1,6 @@
 [program:ytreviewsapi]
-command=/home/ubuntu/venv/bin/gunicorn -w4 YTReviewsAPI:app
-directory=/home/ubuntu/OneReview_Data_Collection/YTReviewsAPI
+command=/home/ubuntu/venv/bin/gunicorn -w4 app:app
+directory=/home/ubuntu/deployment
 user=ubuntu
 autostart=true
 autorestart=true
