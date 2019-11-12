@@ -30,7 +30,7 @@ def get_movie_titles(year, EARLIEST_YEAR):
 	return(movie_titles_JSON)
 
 def get_youtube_list(title, max_results):
-	with open('service1.pkl', 'rb') as input:
+	with open(basedir + '/service1.pkl', 'rb') as input:
 		youtube = pickle.load(input)
 
 	max_results = 5
@@ -71,7 +71,7 @@ def get_youtube_list(title, max_results):
 	return return_JSON
 
 def comment_threads(video_id, max_comment_threads):
-	with open('service1.pkl', 'rb') as input:
+	with open(basedir + '/service1.pkl', 'rb') as input:
 		youtube = pickle.load(input)
 
 	commentThreads = get_comment_threads(youtube, video_id, max_comment_threads)
