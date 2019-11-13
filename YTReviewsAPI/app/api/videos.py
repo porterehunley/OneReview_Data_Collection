@@ -6,7 +6,7 @@ from flask import request
 from app.api.errors import error_response
 from app.api.auth import token_auth
 from app.api.controllers import return_titles
-from app.api.utils import get_movie_titles, get_youtube_list, comment_threads, remove_video_entry
+from app.api.utils import get_movie_titles, get_youtube_list, comment_threads, remove_video_entry, caption_data
 from app.videoCaptions import get_video_captions
 
 import requests
@@ -89,17 +89,16 @@ def return_videos(title):
 
 		l_videoIDs = videoIDs_JSON['video_IDs']
 
-		for video_id in l_videoIDs:
-
-			# #Get the comment threads
+			#Get the comment threads NOTE: emojis really mess with this
 			# print("getting comments")
 			# response = comment_threads(video_id, 100)
 
-			# #Get the captions
-			# print("getting captions")
-			# response = get_video_captions(video_id)
+		#Get the captions
+		print("getting captions")
+		response = caption_data(l_videoIDs)
+		if response['status'] == 'failure':
+			print("could not get caption of video ", video_id)
 
-			print(video_id)
 
 	return(jsonify({"status": "success"}))
 

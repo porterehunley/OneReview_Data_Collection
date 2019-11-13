@@ -2,9 +2,12 @@ from app import db
 from app import basedir
 from app.YouTubeAPICalls import search_videos_list, get_video_stats, get_comment_threads
 from app.models import Video, Description, Comment, Caption, Server_Controller, Admin
+from youtube_transcript_api import YouTubeTranscriptApi
 import pickle
 import os
 
+
+#TODO seperate getting data and commiting to database 
 
 
 
@@ -89,6 +92,23 @@ def comment_threads(video_id, max_comment_threads):
 	return_JSON = {"status" : 'success'}
 	return return_JSON
 
+def caption_data(video_ids):
+	transcript_data = YouTubeTranscriptApi.get_transcripts(video_ids=video_ids, continue_after_error=True)
+	for vid in transcript_data[0]:
+		text_list = []
+		for trans_dict in transcript_data[0][vid]:
+			text_list.append(trans_dict['text'])
+
+		caption_text = "".join(text_list)
+		caption = Caption(body=caption_text, video_id=vid)
+		db.session.add(caption)
+		db.session.commit()
+
+	return_JSON = {"status" : 'success'}
+	return return_JSON
+
+
+
 def remove_video_entry(videoid):
 	video = Video.query.filter_by(id=videoid).first()
 	if (video is None):
@@ -109,6 +129,6 @@ def remove_video_entry(videoid):
 
 	db.session.delete(video)
 	db.session.commit()
-
+	
 
 

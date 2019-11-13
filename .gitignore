@@ -10,3 +10,4 @@
 *.env
 /YTReviewsAPI/YTReviewsAPI.egg-info/*
 /YTReviewsAPI/certs/*
+venv
