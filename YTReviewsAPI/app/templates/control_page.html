@@ -118,9 +118,17 @@
 				    <input type="limit" placeholder="Enter video limit" class="form-control" id="videoLimit">
 				</div>
 			</form>
+			<form>
+				<div class="form-group">
+				    <label for="currYear">Set Year:</label>
+				    <input type="limit" placeholder="Set Year" class="form-control" id="currYear">
+				</div>
+				<button type="button" id="yearbutton" class="btn btn-primary">Get Year</button>
+			</form>
 		</div>
 		
 	</div>	
+
 	<script>
 		$(document).ready(function() {
 			$.get("/api/web/serverstatus", function(data, status) {
@@ -155,6 +163,38 @@
 				});
 			});
 		});
+
+		$(document).ready(function() {
+			$("#yearbutton").click(function() {
+				var year = document.getElementById('currYear').value;
+				document.getElementById("Media_List").innerHTML = "";
+				getTitlesByYear(year, function() {
+					$("#current_year").text("Current Year: " + year);
+
+					$.get("/api/web/videostatus/"+year, function(dataTwo, statusTwo) {
+						var counter = 0;
+						dataTwo.mediaStatus.forEach(function(element) {
+							console.log(element);
+							var liElementTwo = $("li").get(counter);
+							liElementTwo.className = "list-group-item list-group-item-success"
+							if (element[1] == 0) {
+								liElementTwo.className = "list-group-item list-group-item-danger"
+							}
+							counter += 1;
+						});
+					});
+					$("li").click(function() {
+						$("#dataRemoveButton").prop('disabled', false);
+						$("#dataAddButton").prop('disabled', false);
+						$("#videoViewButton").prop('disabled', false);
+						$('.active').removeClass('active');
+					    $(this).addClass('active');
+					});
+				});
+				
+			});
+		});
+
 
 		$(document).ready(function() {
 			$("#dataRemoveButton").click(function() {
@@ -192,27 +232,27 @@
 			});
 		});
 
-		function updateServerStatus() {
-			$.get("/api/web/serverstatus", function(data, status) {
-				var liElement = $("li").get(data.CurrentMovie - ((data.currentYear -2014) * 50));
-				$("#current_year").text("Current Year: " + data.currentYear);
+		// function updateServerStatus() {
+		// 	$.get("/api/web/serverstatus", function(data, status) {
+		// 		var liElement = $("li").get(data.CurrentMovie - ((data.currentYear -2014) * 50));
+		// 		$("#current_year").text("Current Year: " + data.currentYear);
 
-				liElement.className = "list-group-item list-group-item-success";
+		// 		liElement.className = "list-group-item list-group-item-success";
 
-				$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
+		// 		$("#Current_Media").text("Current Movie: " +  liElement.innerHTML);
 
-				if (data.isRunning == true) {
-					$("#dataCollectionButton").prop('disabled', true);
-				} else {
-					setTimeout(function () {
-						$("#dataCollectionButton").prop('disabled', false);
-					}, 5000);
+		// 		if (data.isRunning == true) {
+		// 			$("#dataCollectionButton").prop('disabled', true);
+		// 		} else {
+		// 			setTimeout(function () {
+		// 				$("#dataCollectionButton").prop('disabled', false);
+		// 			}, 5000);
 					
-				}
-			});
-		}
+		// 		}
+		// 	});
+		// }
 
-		setInterval(updateServerStatus, 5000);
+		// setInterval(updateServerStatus, 5000);
 
 		$("#dataCollectionButton").click(function() {
 			$("#dataCollectionButton").prop('disabled', true);
