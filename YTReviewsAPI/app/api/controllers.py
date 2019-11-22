@@ -89,7 +89,6 @@ def get_movie_titles_file():
 		return Response("{'status':'An error occurred!'}", status=500, mimetype='application/json')
 
 @bp.route('/titles/<year>', methods=['GET'])
-@token_auth.login_required
 def return_titles(year):
 	EARLIEST_YEAR = 2014
 	LATEST_YEAR = 2018
