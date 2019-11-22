@@ -45,6 +45,7 @@ def get_video_status(year):
 	access_token = Admin.query.get(1).token
 	print(APP_URL + '/api/titles/' + year)
 	response = requests.get(APP_URL + '/api/titles/' + year, headers={'Authorization': 'Bearer '+ access_token})
+	print('response received: ', response)
 	if (response.status_code == 404):
 		return(error_response(404, 'could not find titles'))
 

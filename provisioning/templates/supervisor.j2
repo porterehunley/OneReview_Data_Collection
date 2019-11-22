@@ -1,6 +1,6 @@
 [program:ytreviewsapi]
-command=/home/ubuntu/venv/bin/gunicorn -w4 app:app
-directory=/home/ubuntu/deployment
+command=/home/ubuntu/venv/bin/flask run --host=0.0.0.0 --port=8000
+directory=/home/ubuntu
 user=ubuntu
 autostart=true
 autorestart=true

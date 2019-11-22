@@ -24,10 +24,12 @@ def get_movie_titles(year, EARLIEST_YEAR):
 	counter = 0
 	print("reading file")
 	for line in movieTitlesFile:
+		print(line)
 		if (counter >= counter_min and counter < counter_max):
 			l_movie_titles.append(line[:len(line) - 1])
 
 		counter+=1
+	print('file read')
 
 	movie_titles_JSON["titles"] = l_movie_titles
 	return(movie_titles_JSON)
