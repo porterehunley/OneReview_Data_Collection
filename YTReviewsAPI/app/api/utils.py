@@ -98,8 +98,14 @@ def caption_data(video_ids):
 	transcript_data = YouTubeTranscriptApi.get_transcripts(video_ids=video_ids, continue_after_error=True)
 	for vid in transcript_data[0]:
 		text_list = []
+		counter = 0
 		for trans_dict in transcript_data[0][vid]:
+			#I think this is where they are getting concatenateds
+			if counter < 2:
+				print(trans_dict['text'])
+				counter +=1
 			text_list.append(trans_dict['text'])
+			text_list.append(' ')
 
 		caption_text = "".join(text_list)
 		caption = Caption(body=caption_text, video_id=vid)

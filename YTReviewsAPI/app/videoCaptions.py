@@ -15,15 +15,18 @@ def get_video_captions(video_id):
 	return(str(caption))
 
 if (__name__ == '__main__'):
-	video_id='EuPSibuIKIg'
-	transcript_data = YouTubeTranscriptApi.get_transcript(video_id)
+	video_id='Cjim2F5Kk38'
+	transcript_data = YouTubeTranscriptApi.get_transcripts(['Cjim2F5Kk38', 'DtdRCCMvllo'])
+	for vid in transcript_data[0]:
+		text_list = []
+		counter = 0
+		for trans_dict in transcript_data[0][vid]:
+			if counter < 3:
+				print(trans_dict['text'])
+			text_list.append(trans_dict['text'])
 
-	text_list = []
-	for trans_dict in transcript_data:
-		text_list.append(trans_dict['text'])
-
-	caption_text = "".join(text_list)
-	print(caption_text)
+		caption_text = "".join(text_list)
+	# print(caption_text)
 
 
 
